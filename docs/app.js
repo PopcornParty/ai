@@ -1,135 +1,76 @@
-const PASS="FERRARI1";
-const WOODS=["oak","spruce","birch","jungle","acacia","dark oak","mangrove","cherry","pale oak","bamboo","crimson","warped"];
-const COLORS=["white","orange","magenta","light blue","yellow","lime","pink","gray","light gray","cyan","purple","blue","brown","green","red","black"];
-const TOOLM=["wood","stone","iron","gold","diamond","netherite"];
-const NICE={planks:"Planks",cobblestone:"Cobble",stick:"Stick",iron_ingot:"Iron",gold_ingot:"Gold",diamond:"Diamond",netherite_ingot:"Netherite",coal:"Coal",redstone:"Redstone",string:"String",leather:"Leather",paper:"Paper",book:"Book",wheat:"Wheat",apple:"Apple",wool:"Wool",obsidian:"Obsidian",ender_pearl:"Pearl",blaze_powder:"Blaze powder",blaze_rod:"Blaze rod",gunpowder:"Gunpowder",sand:"Sand",chest:"Chest",flint:"Flint",feather:"Feather",bowl:"Bowl",slimeball:"Slime",glass:"Glass",nether_star:"Star",quartz:"Quartz",stone:"Stone"};
-function nice(id){return id?(NICE[id]||id.replace(/_/g," ")):""}
-const RECIPES=[];
-function shaped(out,n,s,m){RECIPES.push({o:out,n:n,s:s,m:m})}
-function shapeless(out,n,l){RECIPES.push({o:out,n:n,l:l})}
-shaped("crafting table",1,["PP","PP"],{P:"planks"});
-shaped("stick",4,["P","P"],{P:"planks"});
-shaped("chest",1,["PPP","P P","PPP"],{P:"planks"});
-shaped("furnace",1,["CCC","C C","CCC"],{C:"cobblestone"});
-shaped("torch",4,["C","S"],{C:"coal",S:"stick"});
-shaped("ladder",3,["S S","SSS","S S"],{S:"stick"});
-shaped("bowl",4,["P P"," P "],{P:"planks"});
-shaped("bucket",1,["I I"," I "],{I:"iron_ingot"});
-shaped("shears",1,[" I","I "],{I:"iron_ingot"});
-shaped("flint and steel",1,["I "," F"],{I:"iron_ingot",F:"flint"});
-shaped("compass",1,[" I ","IRI"," I "],{I:"iron_ingot",R:"redstone"});
-shaped("clock",1,[" G ","GRG"," G "],{G:"gold_ingot",R:"redstone"});
-shaped("fishing rod",1,["  S"," S#","S #"],{S:"stick","#":"string"});
-shaped("bow",1,[" #S","# S"," #S"],{S:"stick","#":"string"});
-shaped("arrow",4,["F","S","f"],{F:"flint",S:"stick",f:"feather"});
-shaped("shield",1,["PIP","PPP"," P "],{P:"planks",I:"iron_ingot"});
-shaped("hopper",1,["I I","ICI"," I "],{I:"iron_ingot",C:"chest"});
-shaped("piston",1,["PPP","CIC","CRC"],{P:"planks",C:"cobblestone",I:"iron_ingot",R:"redstone"});
-shaped("sticky piston",1,["L","P"],{L:"slimeball",P:"piston"});
-shaped("observer",1,["CCC","RRQ","CCC"],{C:"cobblestone",R:"redstone",Q:"quartz"});
-shaped("redstone torch",1,["R","S"],{R:"redstone",S:"stick"});
-shaped("lever",1,["S","C"],{S:"stick",C:"cobblestone"});
-shaped("enchanting table",1,[" B ","DOD","OOO"],{B:"book",D:"diamond",O:"obsidian"});
-shaped("brewing stand",1,[" B ","CCC"],{B:"blaze_rod",C:"cobblestone"});
-shaped("cauldron",1,["I I","I I","III"],{I:"iron_ingot"});
-shaped("beacon",1,["GGG","GNG","OOO"],{G:"glass",N:"nether_star",O:"obsidian"});
-shaped("ender chest",1,["OOO","OEO","OOO"],{O:"obsidian",E:"ender_eye"});
-shaped("bookshelf",1,["PPP","BBB","PPP"],{P:"planks",B:"book"});
-shaped("jukebox",1,["PPP","PDP","PPP"],{P:"planks",D:"diamond"});
-shaped("anvil",1,["BBB"," I ","III"],{B:"iron_block",I:"iron_ingot"});
-shaped("tnt",1,["GSG","SGS","GSG"],{G:"gunpowder",S:"sand"});
-shaped("minecart",1,["I I","III"],{I:"iron_ingot"});
-shaped("rail",16,["I I","ISI","I I"],{I:"iron_ingot",S:"stick"});
-shaped("golden apple",1,["GGG","GAG","GGG"],{G:"gold_ingot",A:"apple"});
-shaped("golden carrot",1,["NNN","NCN","NNN"],{N:"gold_nugget",C:"carrot"});
-shapeless("ender eye",1,["ender_pearl","blaze_powder"]);
-shapeless("book",1,["paper","paper","paper","leather"]);
-shapeless("paper",3,["sugar_cane","sugar_cane","sugar_cane"]);
-shapeless("bread",1,["wheat","wheat","wheat"]);
-shapeless("mushroom stew",1,["red_mushroom","brown_mushroom","bowl"]);
-WOODS.forEach(w=>{
-  shaped(w+" planks",4,[w==="bamboo"?"BB":"L"],{L:w+" log",B:w+" block"});
-  shaped(w+" stairs",4,["P  ","PP ","PPP"],{P:w+" planks"});
-  shaped(w+" slab",6,["PPP"],{P:w+" planks"});
-  shaped(w+" door",3,["PP","PP","PP"],{P:w+" planks"});
-  shaped(w+" trapdoor",2,["PPP","PPP"],{P:w+" planks"});
-  shaped(w+" fence",3,["PSP","PSP"],{P:w+" planks",S:"stick"});
-  shaped(w+" fence gate",1,["SPS","SPS"],{P:w+" planks",S:"stick"});
-  shaped(w+" sign",3,["PPP","PPP"," S "],{P:w+" planks",S:"stick"});
-  shaped(w+" boat",1,["P P","PPP"],{P:w+" planks"});
-  shaped(w+" pressure plate",1,["PP"],{P:w+" planks"});
-  shaped(w+" button",1,["P"],{P:w+" planks"});
-});
-const MAT={wood:"planks",stone:"cobblestone",iron:"iron_ingot",gold:"gold_ingot",diamond:"diamond",netherite:"netherite_ingot"};
-TOOLM.forEach(m=>{const I=MAT[m];
-  shaped(m+" sword",1,["M","M","S"],{M:I,S:"stick"});
-  shaped(m+" pickaxe",1,["MMM"," S "," S "],{M:I,S:"stick"});
-  shaped(m+" axe",1,["MM","MS"," S"],{M:I,S:"stick"});
-  shaped(m+" shovel",1,["M","S","S"],{M:I,S:"stick"});
-  shaped(m+" hoe",1,["MM"," S"," S"],{M:I,S:"stick"});
-});
-["leather","iron","gold","diamond"].forEach(m=>{
-  const I=m==="leather"?"leather":m==="iron"?"iron_ingot":m==="gold"?"gold_ingot":"diamond";
-  shaped(m+" helmet",1,["MMM","M M"],{M:I});
-  shaped(m+" chestplate",1,["M M","MMM","MMM"],{M:I});
-  shaped(m+" leggings",1,["MMM","M M","M M"],{M:I});
-  shaped(m+" boots",1,["M M","M M"],{M:I});
-});
-COLORS.forEach(c=>{shaped(c+" bed",1,["WWW","PPP"],{W:c+" wool",P:"planks"});shaped(c+" carpet",3,["WW"],{W:c+" wool"});shaped(c+" banner",1,["WWW","WWW"," S "],{W:c+" wool",S:"stick"});});
-["iron","gold","diamond","emerald","coal","redstone","lapis","netherite"].forEach(x=>{shaped(x+" block",1,["XXX","XXX","XXX"],{X:x==="lapis"?"lapis":x==="netherite"?"netherite_ingot":x==="iron"?"iron_ingot":x==="gold"?"gold_ingot":x});shapeless(x==="iron"?"iron ingot":x==="gold"?"gold ingot":x==="netherite"?"netherite ingot":x,9,[x+" block"]);});
-const PICK={fist:1,wood:2,stone:4,iron:6,gold:12,diamond:8,netherite:9};
-function mineSec(h,tool,can){if(h<0)return "unbreakable";const spd=can?PICK[tool]:1;const t=(1.5*h)/spd;if(t<=0.05&&can)return "instant";return (Math.round(t*100)/100)+"s";}
-function canPick(need,tool){const order={fist:0,wood:1,stone:2,iron:3,gold:2,diamond:4,netherite:4};if(need===0)return tool!=="fist";return order[tool]>=need;}
-const TIER=["fist","wood","stone","iron","diamond","netherite","gold"];
-const BLOCKS=[["Stone",1.5,"pick",1],["Cobblestone",2,"pick",1],["Granite",1.5,"pick",1],["Diorite",1.5,"pick",1],["Andesite",1.5,"pick",1],["Deepslate",3,"pick",1],["Cobbled deepslate",3,"pick",1],["Dirt",0.5,"shovel",1],["Grass block",0.6,"shovel",1],["Sand",0.5,"shovel",1],["Gravel",0.6,"shovel",1],["Clay",0.6,"shovel",1],["Oak log",2,"axe",1],["Spruce log",2,"axe",1],["Birch log",2,"axe",1],["Oak planks",2,"axe",1],["Crafting table",2.5,"axe",1],["Chest",2.5,"axe",1],["Coal ore",3,"pick",1],["Iron ore",3,"pick",2],["Copper ore",3,"pick",2],["Gold ore",3,"pick",3],["Redstone ore",3,"pick",3],["Lapis ore",3,"pick",2],["Diamond ore",3,"pick",3],["Emerald ore",3,"pick",3],["Ancient debris",30,"pick",4],["Obsidian",50,"pick",4],["Crying obsidian",50,"pick",4],["Netherrack",0.4,"pick",1],["Soul sand",0.5,"shovel",1],["Glowstone",0.3,"any",1],["End stone",3,"pick",1],["Glass",0.3,"any",0],["Wool",0.8,"shears",1],["Concrete",1.8,"pick",1],["Iron block",5,"pick",2],["Gold block",3,"pick",3],["Diamond block",5,"pick",3],["Netherite block",50,"pick",4],["Sculk",0.2,"hoe",1],["Bedrock",-1,"none",0],["Spawner",5,"pick",1],["Enchanting table",5,"pick",1],["Anvil",5,"pick",1],["Hopper",3,"pick",2],["TNT",0,"any",1],["Leaves",0.2,"shears",1],["Cobweb",4,"sword",1],["Ice",0.5,"pick",1],["Blue ice",2.8,"pick",1],["Magma block",0.5,"pick",1],["Blackstone",1.5,"pick",1],["Basalt",1.25,"pick",1],["Respawn anchor",50,"pick",4],["Reinforced deepslate",55,"none",0],["Sandstone",0.8,"pick",1],["Bricks",2,"pick",1],["Netherrack",0.4,"pick",1],["End stone bricks",3,"pick",1],["Amethyst block",1.5,"pick",1],["Budding amethyst",1.5,"pick",0],["Lantern",3.5,"pick",1],["Campfire",2,"axe",1],["Mud",0.5,"shovel",1],["Farmland",0.6,"shovel",1]];
-const ITEMS=[["Stick","stack 64","Used in almost every tool."],["Coal","stack 64","Smelts 8 items. Crafts torches."],["Diamond","stack 64","Armor, tools, enchanting table."],["Iron ingot","stack 64","Armor, tools, rails, hoppers, buckets."],["Gold ingot","stack 64","Clocks, powered rails, golden apples."],["Netherite ingot","stack 64","Upgrade diamond gear. Fireproof."],["Emerald","stack 64","Villager currency."],["Redstone dust","stack 64","Power and machines."],["Lapis lazuli","stack 64","Enchanting fuel and blue dye."],["Ender pearl","stack 16","Teleport. Crafts ender eyes."],["Blaze rod","stack 64","Fuel and brewing stands."],["Gunpowder","stack 64","TNT and fireworks."],["String","stack 64","Bows, fishing rods, wool."],["Leather","stack 64","Books and leather armor."],["Arrow","stack 64","Bow ammo."],["Wheat","stack 64","Bread and breeding."],["Bread","stack 64","Restores 5 hunger."],["Apple","stack 64","Crafts golden apples."],["Golden apple","stack 64","Absorption and regen."],["Enchanted golden apple","stack 64","Not crafted in modern survival."],["Elytra","stack 1","End ship item frame. Repair with membrane."],["Totem of undying","stack 1","Evoker drop. Saves you once."],["Trident","stack 1","Drowned drop."],["Bow","stack 1","Power, Punch, Flame, Infinity or Mending."],["Crossbow","stack 1","Quick Charge, Multishot, Piercing."],["Shield","stack 1","Blocks melee and arrows."],["Name tag","stack 64","Stops mob despawn."],["Saddle","stack 1","Not crafted."],["Phantom membrane","stack 64","Repair elytra."],["Nether star","stack 64","Wither drop. Beacon."],["Shulker shell","stack 64","Shulker boxes."],["Slimeball","stack 64","Sticky pistons and leads."]];
-const ARMOR=[["Leather helmet","1","0","0","55","leather"],["Leather chestplate","3","0","0","80","leather"],["Leather leggings","2","0","0","75","leather"],["Leather boots","1","0","0","65","leather"],["Chainmail helmet","2","0","0","165","iron"],["Chainmail chestplate","5","0","0","240","iron"],["Chainmail leggings","4","0","0","225","iron"],["Chainmail boots","1","0","0","195","iron"],["Iron helmet","2","0","0","165","iron"],["Iron chestplate","6","0","0","240","iron"],["Iron leggings","5","0","0","225","iron"],["Iron boots","2","0","0","195","iron"],["Gold helmet","2","0","0","77","gold"],["Gold chestplate","5","0","0","112","gold"],["Gold leggings","3","0","0","105","gold"],["Gold boots","1","0","0","91","gold"],["Diamond helmet","3","2","0","363","diamond"],["Diamond chestplate","8","2","0","528","diamond"],["Diamond leggings","6","2","0","495","diamond"],["Diamond boots","3","2","0","429","diamond"],["Netherite helmet","3","3","0.1","407","netherite"],["Netherite chestplate","8","3","0.1","592","netherite"],["Netherite leggings","6","3","0.1","555","netherite"],["Netherite boots","3","3","0.1","481","netherite"],["Turtle helmet","2","0","0","275","scute"],["Elytra","0","0","0","432","phantom membrane"]];
-const ENCH=[["Protection","IV","armor","Cuts most damage."],["Fire Protection","IV","armor","Fire and lava."],["Blast Protection","IV","armor","Explosions."],["Projectile Protection","IV","armor","Arrows and fireballs."],["Feather Falling","IV","boots","Fall damage."],["Respiration","III","helmet","Longer breath."],["Aqua Affinity","I","helmet","Mine faster underwater."],["Thorns","III","armor","Damages attackers."],["Depth Strider","III","boots","Faster in water."],["Frost Walker","II","boots","Ice underfoot."],["Soul Speed","III","boots","Faster on soul blocks."],["Swift Sneak","III","leggings","Faster sneaking. Ancient city."],["Sharpness","V","sword axe","Extra melee damage."],["Smite","V","sword axe","Undead damage."],["Bane of Arthropods","V","sword axe","Spiders and bugs."],["Knockback","II","sword","Pushes mobs."],["Fire Aspect","II","sword","Sets targets on fire."],["Looting","III","sword","More mob drops."],["Sweeping Edge","III","sword","Java sweep. Not Bedrock."],["Efficiency","V","tools","Mine faster."],["Silk Touch","I","tools","Block drops itself."],["Fortune","III","tools","More ore drops."],["Unbreaking","III","most gear","Ignores some durability use."],["Mending","I","most gear","XP repairs the item."],["Power","V","bow","More arrow damage."],["Punch","II","bow","Arrow knockback."],["Flame","I","bow","Burning arrows."],["Infinity","I","bow","Arrows not consumed. Conflicts with Mending."],["Multishot","I","crossbow","Three shots. Conflicts with Piercing."],["Piercing","IV","crossbow","Goes through mobs."],["Quick Charge","III","crossbow","Faster reload."],["Loyalty","III","trident","Returns. Conflicts with Riptide."],["Channeling","I","trident","Lightning in storms."],["Riptide","III","trident","Dash in water or rain."],["Impaling","V","trident","Extra water-mob damage."],["Luck of the Sea","III","rod","Better treasure."],["Lure","III","rod","Faster bites."],["Curse of Binding","I","armor","Cannot take off."],["Curse of Vanishing","I","any","Gone on death."]];
+const TABS=[["chat","Chat"],["forge","Forge"],["mobs","Mobs"],["world","World"],["brew","Potions"],["index","Index"]];
+const nav=document.getElementById("nav");
+TABS.forEach(([id,lab],i)=>{const b=document.createElement("button");b.type="button";b.textContent=lab;if(!i)b.className="on";
+b.onclick=()=>{document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("on"));document.querySelectorAll(".pane").forEach(x=>x.classList.remove("on"));b.className="on";document.getElementById(id).classList.add("on");};
+nav.appendChild(b);});
+function icon(name){return "https://minecraft.wiki/images/"+encodeURIComponent("Invicon_"+name.replace(/ /g,"_")+".png")}
+function pic(name){return '<span class="slot"><img alt="" src="'+icon(name)+'" onerror="this.replaceWith(document.createTextNode(\'\u25c6\'))"/></span>'}
+const MOBS=[{n:"Player",hp:20,dn:"2 fist / weapon",dps:"weapon",spd:"walk 4.317, sprint 5.612",w:0.6,h:1.8,t:"you",x:"Sneak height 1.5. Swim 0.6. 20 hunger."},{n:"Zombie",hp:20,dn:"Easy 2.5 / Normal 3 / Hard 4.5",dps:"~4.8",spd:"~4.3 b/s",w:0.6,h:1.95,t:"undead",x:"Burns in sun. 5% baby. Rare iron, carrot, potato."},{n:"Husk",hp:20,dn:"zombie + Hunger",dps:"~4.8",spd:"a bit faster",w:0.6,h:1.95,t:"undead",x:"Desert. No sun burn."},{n:"Drowned",hp:20,dn:"3 melee, trident higher",dps:"~4.8",spd:"faster in water",w:0.6,h:1.95,t:"undead",x:"Rare trident drop."},{n:"Skeleton",hp:20,dn:"arrow 1-5",dps:"ranged",spd:"0.25",w:0.6,h:1.99,t:"undead",x:"Strafes. Burns in sun."},{n:"Stray",hp:20,dn:"Slowness arrows",dps:"ranged",spd:"like skeleton",w:0.6,h:1.99,t:"undead",x:"Snowy variant."},{n:"Bogged",hp:16,dn:"Poison arrows",dps:"ranged",spd:"like skeleton",w:0.6,h:1.99,t:"undead",x:"Trial / swamp."},{n:"Creeper",hp:20,dn:"blast 22.5 / 43 / 64.5",dps:"burst",spd:"0.25",w:0.6,h:1.7,t:"hostile",x:"Charged is much stronger."},{n:"Spider",hp:16,dn:"2 / 2 / 3",dps:"~3.2",spd:"0.3",w:1.4,h:0.9,t:"arthropod",x:"Climbs walls."},{n:"Cave Spider",hp:12,dn:"2 + Poison",dps:"~3.2",spd:"0.3",w:0.7,h:0.5,t:"arthropod",x:"Fits one-block gaps."},{n:"Enderman",hp:40,dn:"4.5 / 7 / 10.5",dps:"~11",spd:"0.3",w:0.6,h:2.9,t:"hostile",x:"Angry height 3.25. Water hurts."},{n:"Blaze",hp:20,dn:"fireball 5 + fire",dps:"volley",spd:"fly",w:0.6,h:1.8,t:"nether",x:"Snowballs damage them."},{n:"Ghast",hp:10,dn:"fireball blast",dps:"ranged",spd:"float",w:4,h:4,t:"nether",x:"Shoot the fireball back."},{n:"Piglin",hp:16,dn:"5 sword",dps:"~8",spd:"0.35",w:0.6,h:1.95,t:"nether",x:"Gold barter."},{n:"Piglin Brute",hp:50,dn:"13 axe Java",dps:"high",spd:"0.35",w:0.6,h:1.95,t:"nether",x:"No barter. Bastion guard."},{n:"Hoglin",hp:40,dn:"3-8 normal",dps:"charge",spd:"0.3",w:1.4,h:1.4,t:"nether",x:"Warped fungus scare."},{n:"Zombified Piglin",hp:20,dn:"5 / 8 / 12",dps:"pack",spd:"0.23",w:0.6,h:1.95,t:"undead",x:"Neutral until one is hit."},{n:"Wither Skeleton",hp:20,dn:"5 / 8 / 12 + Wither",dps:"high",spd:"0.25",w:0.7,h:2.4,t:"undead",x:"Skull for the Wither."},{n:"Wither",hp:300,dn:"skulls",dps:"boss",spd:"fly",w:0.9,h:3.5,t:"boss",x:"Nether star. Breaks blocks."},{n:"Warden",hp:500,dn:"melee 30 + sonic 10",dps:"extreme",spd:"0.3",w:0.9,h:2.9,t:"boss-like",x:"Deep dark. Darkness."},{n:"Ender Dragon",hp:200,dn:"melee 6/10/15",dps:"boss",spd:"flight",w:16,h:8,t:"boss",x:"Crystals heal. Egg after first fight."},{n:"Shulker",hp:30,dn:"4 + Levitation",dps:"ranged",spd:"0",w:1,h:1,t:"end",x:"Shells make shulker boxes."},{n:"Guardian",hp:30,dn:"laser 6",dps:"laser",spd:"water",w:0.85,h:0.85,t:"ocean",x:"Prismarine drops."},{n:"Elder Guardian",hp:80,dn:"laser 8 + Fatigue III",dps:"laser",spd:"slow",w:2,h:2,t:"ocean",x:"Three per monument."},{n:"Phantom",hp:20,dn:"2 / 3 / 4.5",dps:"swoop",spd:"fly",w:0.9,h:0.5,t:"undead",x:"Insomnia. Membrane."},{n:"Witch",hp:26,dn:"potions",dps:"magic",spd:"0.25",w:0.6,h:1.95,t:"hostile",x:"Drinks healing and fire res."},{n:"Evoker",hp:24,dn:"fangs 6 + vexes",dps:"summon",spd:"0.5",w:0.6,h:1.95,t:"illager",x:"Totem of Undying."},{n:"Vindicator",hp:24,dn:"7 / 10.5 / 13",dps:"axe",spd:"0.35",w:0.6,h:1.95,t:"illager",x:"Raid axe."},{n:"Pillager",hp:24,dn:"crossbow 1-5",dps:"ranged",spd:"0.35",w:0.6,h:1.95,t:"illager",x:"Outposts and raids."},{n:"Ravager",hp:100,dn:"12",dps:"roar",spd:"0.3",w:1.95,h:2.2,t:"illager",x:"Raid beast."},{n:"Iron Golem",hp:100,dn:"7-21",dps:"heavy",spd:"0.25",w:1.4,h:2.7,t:"golem",x:"Village defender."},{n:"Wolf",hp:"8 / 20-40 tamed",dn:"4 tamed",dps:"pack",spd:"0.3",w:0.6,h:0.85,t:"animal",x:"Wolf armor from scutes."},{n:"Axolotl",hp:14,dn:"2",dps:"hunts drowned",spd:"swim 1.0",w:0.75,h:0.42,t:"animal",x:"Blue is 1/1200 from breeding only."},{n:"Allay",hp:20,dn:"0",dps:"none",spd:"fly",w:0.35,h:0.6,t:"helper",x:"Returns matching items."},{n:"Villager",hp:20,dn:"0",dps:"none",spd:"0.5",w:0.6,h:1.95,t:"npc",x:"Trades and jobs."},{n:"Breeze",hp:30,dn:"wind charge",dps:"knock",spd:"0.63",w:0.6,h:1.77,t:"trial",x:"Trial chambers."},{n:"Creaking",hp:"linked heart",dn:"3 / 4",dps:"ambush",spd:"0.4",w:0.9,h:2.7,t:"pale",x:"Freezes when looked at."},{n:"Bee",hp:10,dn:"2 + Poison",dps:"once",spd:"fly",w:0.7,h:0.6,t:"animal",x:"Loses stinger after sting."},{n:"Camel",hp:32,dn:"0",dps:"none",spd:"dash",w:1.7,h:2.38,t:"animal",x:"Two riders."}];
+const BIOMES=[["Plains","Overworld","Villages, horses, pumpkins."],["Forest","Overworld","Oak, birch, wolves."],["Dark Forest","Overworld","Mansions and totems."],["Taiga","Overworld","Spruce, foxes, berries."],["Jungle","Overworld","Pandas, temples, cocoa."],["Savanna","Overworld","Acacia villages."],["Desert","Overworld","Temples, wells, husks."],["Badlands","Overworld","Extra gold and terracotta."],["Swamp","Overworld","Slimes, frogs, witch huts."],["Mangrove Swamp","Overworld","Mud, mangrove, frogs."],["Ocean","Overworld","Monuments in deep water."],["Warm Ocean","Overworld","Coral and tropical fish."],["Deep Dark","Overworld","Ancient cities and the Warden."],["Lush Caves","Overworld","Axolotls and glow berries."],["Dripstone Caves","Overworld","Dripstone and extra copper."],["Cherry Grove","Overworld","Cherry wood and petals."],["Pale Garden","Overworld","Pale oak and creaking."],["Mushroom Fields","Overworld","Mooshrooms. No surface hostiles on mycelium."],["Meadow","Overworld","Mountain villages."],["Nether Wastes","Nether","Quartz, glowstone, piglins."],["Crimson Forest","Nether","Hoglins and crimson fungus."],["Warped Forest","Nether","Mostly endermen. Safer travel."],["Soul Sand Valley","Nether","Skeletons, fossils, Soul Speed."],["Basalt Deltas","Nether","Magma cubes and blackstone."],["The End","End","Dragon island."],["End Highlands","End","Cities, chorus, ships, elytra."]];
+const LOOT=[["End ship","Every ship has 1 elytra in an item frame (not the chest), a dragon head, 2 chests, a brewing stand with 2 Instant Health II, and 3 shulkers. About 1 in 4 End cities has a ship."],["End city chest","Java: gold ingots ~52% (2-7), iron ~38% (4-8), diamonds ~21% (2-7), emeralds ~9% (2-6), beetroot seeds ~21%, enchanted diamond/iron gear, horse armor, saddles."],["Ancient city","Swift Sneak books, echo shards, Disc 5 fragments."],["Bastion treasure","Netherite upgrade, ancient debris, enchanted gold/diamond."],["Desert pyramid","Diamonds, emeralds, bones, enchanted books. TNT trap under the colors."],["Ocean monument","8 gold blocks in the core plus wet sponges."],["Trial chambers","Ominous vaults, breeze rods, mace parts."]];
+const POTIONS=[["Awkward","nether wart + water","base","Needed for almost every useful brew."],["Healing","glistering melon","instant","I heals 4 HP. II heals 8 HP. End ships often have II."],["Harming","fermented eye on Healing/Poison","instant","Hurts living, heals undead."],["Fire Resistance","magma cream","3:00 / 8:00","Lava safe."],["Strength","blaze powder","3:00 / 8:00 / II 1:30","Java +3 / +6 attack. Before crit, before Sharpness."],["Swiftness","sugar","3:00 / 8:00 / II 1:30","+20% / +40% speed."],["Slowness","fermented eye on Swiftness","1:30 / 4:00","Slows movement."],["Leaping","rabbit foot","3:00 / 8:00","Jump boost."],["Poison","spider eye","0:45 / II 0:21","Drains to 1 HP."],["Regeneration","ghast tear","0:45 / II 0:22","Heal over time."],["Night Vision","golden carrot","3:00 / 8:00","See in dark and water."],["Invisibility","fermented eye on Night Vision","3:00 / 8:00","Less detection without armor."],["Water Breathing","pufferfish","3:00 / 8:00","No drown bar."],["Turtle Master","turtle shell","0:20","Resistance plus Slowness."],["Slow Falling","phantom membrane","1:30 / 4:00","No fall damage."],["Weakness","fermented eye","1:30 / 4:00","Java -4 attack. Used to cure villagers with a golden apple."]];
+const SW={wood:[4,59],gold:[4,32],stone:[5,131],iron:[6,250],diamond:[7,1561],netherite:[8,2031]};
+const AX={wood:[7,59],gold:[7,32],stone:[9,131],iron:[9,250],diamond:[9,1561],netherite:[10,2031]};
+const sharp=lv=>0.5*lv+0.5;
+function stats(kind,mat,sh){const t=(kind==="axe"?AX:SW)[mat];if(!t)return null;const extra=sharp(sh||0),hit=t[0]+extra,crit=t[0]*1.5+extra,spd=kind==="axe"?0.8:1.6;return {base:t[0],dur:t[1],spd,extra,hit,crit,dps:+(hit*spd).toFixed(2)};}
+const ENCH=[["Sharpness","V","Java extra = 0.5 x level + 0.5. I=+1, II=+1.5, III=+2, IV=+2.5, V=+3. Bedrock +1.25 per level."],["Smite","V","+2.5 per level vs undead."],["Bane of Arthropods","V","+2.5 per level vs spiders, bees, silverfish, endermites."],["Sweeping Edge","III","Java sweep uses 50% / 67% / 75% of the hit."],["Fire Aspect","II","I burns 4s, II burns 8s."],["Knockback","II","Pushes farther."],["Looting","III","Better mob drops."],["Unbreaking","III","Item lasts about (level+1) times longer."],["Mending","I","XP repairs the item."],["Efficiency","V","Adds level^2 + 1 to mine speed."],["Fortune","III","More ore and drops."],["Silk Touch","I","Block drops itself."],["Power","V","Bow extra 25% x (level+1). V is +150%."],["Protection","IV","General damage cut."],["Feather Falling","IV","Fall damage."],["Thorns","III","Hurts attackers."],["Respiration","III","+15s breath per level."],["Aqua Affinity","I","Normal mine speed underwater."],["Depth Strider","III","Faster in water."],["Frost Walker","II","Ice underfoot."],["Soul Speed","III","Faster on soul blocks."],["Swift Sneak","III","Ancient city sneak speed."],["Loyalty","III","Trident returns."],["Riptide","III","Dash in water or rain."],["Channeling","I","Lightning in storms."],["Impaling","V","Extra vs aquatic (Java) or wet targets (Bedrock)."],["Multishot","I","Three crossbow bolts."],["Piercing","IV","Bolts pass through."],["Quick Charge","III","Faster crossbow reload."],["Density","V","Mace damage from fall distance."],["Breach","IV","Mace ignores some armor."],["Wind Burst","III","Mace launch."],["Curse of Binding","I","Armor will not come off."],["Curse of Vanishing","I","Gone on death."]];
 function talk(raw){
-  const q=String(raw).toLowerCase();
-  if(/^(hi|hey|hello|yo|sup)$/.test(q.trim())) return "Use the tabs: Craft, Blocks, Items, Armor, Enchants.";
-  if(/axolotl/.test(q)&&/rare|chance|odds/.test(q)) return "Blue axolotls do not spawn in the wild. Breeding two axolotls gives a blue baby 1 time in 1200.";
-  if(/axolotl/.test(q)) return "Axolotls live in lush-cave water. Blue is 1 in 1200 from breeding.";
-  if(/elytra/.test(q)&&/ah|price|cost/.test(q)) return "Donut AH elytra have been around 450M-480M lately. Check /ah search elytra.";
-  if(/discord/.test(q)) return "Official Discord is discord.gg/donutsmp.";
-  if(/port|bedrock|xbox|phone/.test(q)) return "Bedrock: donutsmp.net port 19132.";
-  if(/\bip\b/.test(q)) return "The IP is donutsmp.net.";
-  const b=BLOCKS.find(x=>q.includes(x[0].toLowerCase()));
-  if(b) return b[0]+" hardness "+b[1]+". Best tool: "+b[2]+". Diamond pick: "+mineSec(b[1],"diamond",b[2]==="pick"?canPick(b[3],"diamond"):true)+".";
-  const a=ARMOR.find(x=>q.includes(x[0].toLowerCase()));
-  if(a) return a[0]+": "+a[1]+" armor, "+a[2]+" toughness, "+a[3]+" knockback resist, "+a[4]+" durability.";
-  const e=ENCH.find(x=>q.includes(x[0].toLowerCase()));
-  if(e) return e[0]+" "+e[1]+" on "+e[2]+". "+e[3];
-  const it=ITEMS.find(x=>q.includes(x[0].toLowerCase()));
-  if(it) return it[0]+" ("+it[1]+"). "+it[2];
-  return "Try the Blocks, Items, Armor, or Enchants tab.";
+  const q=String(raw||"").toLowerCase().trim();
+  if(!q) return "Ask a Minecraft question.";
+  if(/^(hi|hey|hello|yo|sup)$/.test(q)) return "Hey. I am Mine Atlas. Ask a mob, biome, potion, loot table, or diamond sword sharpness 5.";
+  if(/axolotl/.test(q)) return "Axolotls live in lush-cave water. 14 HP, 0.75 wide, 0.42 tall. Blue never spawns wild. Breeding with a tropical fish bucket gives a 1 in 1200 blue baby.";
+  if(/player/.test(q)) return "Player: 20 HP, 0.6 wide, 1.8 tall (sneak 1.5, swim 0.6). Walk 4.317 b/s, sprint 5.612. Fist is 1 damage.";
+  const lv=(q.match(/sharpness\\s*(v|5|iv|4|iii|3|ii|2|i|1)/)||[])[1];
+  const map={i:1,ii:2,iii:3,iv:4,v:5,"1":1,"2":2,"3":3,"4":4,"5":5};
+  const mat=["netherite","diamond","iron","stone","gold","wood","wooden"].find(m=>q.includes(m));
+  if((/sword|axe|damage|dps|sharpness/.test(q)) && (mat||/sharpness/.test(q))){
+    const m=mat==="wooden"?"wood":(mat||"diamond");
+    const kind=q.includes("axe")&&!q.includes("pick")?"axe":"sword";
+    const L=map[lv]||0; const s=stats(kind,m,L);
+    if(s) return m+" "+kind+" (Java): base "+s.base+" at "+s.spd+" speed. Sharpness "+L+" adds +"+s.extra+", so a full hit is "+s.hit+" damage ("+(s.hit/2)+" hearts). Crit "+s.crit+". DPS "+s.dps+". Durability "+s.dur+". Open Forge to stack other enchants.";
+  }
+  if(/end ship|elytra|end city/.test(q)) return LOOT[0][1]+" "+LOOT[1][1];
+  const pot=POTIONS.find(p=>q.includes(p[0].toLowerCase()));
+  if(pot) return pot[0]+": ingredient "+pot[1]+". Time "+pot[2]+". "+pot[3];
+  if(/potion|brew/.test(q)) return "Start with Awkward (nether wart + water). Then add the reagent. Open Potions for every brew.";
+  const mob=MOBS.slice().sort((a,b)=>b.n.length-a.n.length).find(m=>q.includes(m.n.toLowerCase()));
+  if(mob) return mob.n+": "+mob.hp+" HP. Attack "+mob.dn+". Speed "+mob.spd+". Size "+mob.w+" x "+mob.h+". "+mob.x;
+  const bio=BIOMES.slice().sort((a,b)=>b[0].length-a[0].length).find(m=>q.includes(m[0].toLowerCase()));
+  if(bio) return bio[0]+" ("+bio[1]+"). "+bio[2];
+  const en=ENCH.find(e=>q.includes(e[0].toLowerCase()));
+  if(en) return en[0]+" "+en[1]+" \u2014 "+en[2];
+  const loot=LOOT.find(l=>q.includes(l[0].toLowerCase()));
+  if(loot) return loot[1];
+  if(/biome/.test(q)) return "World tab has Overworld, Nether, and End biomes. Try lush caves or pale garden.";
+  return "I can answer that. Name a mob, biome, potion, enchant, or say diamond sword sharpness 5.";
 }
 const log=document.getElementById("log");
-function add(role,text){const el=document.createElement("div");el.className="msg "+role;el.textContent=text;log.appendChild(el);log.scrollTop=log.scrollHeight}
-document.getElementById("st").textContent=RECIPES.length+" recipes • "+BLOCKS.length+" blocks • "+ITEMS.length+" items • "+ARMOR.length+" armor • "+ENCH.length+" enchants";
-add("bot","Open Craft for recipes. Blocks has break times. Armor and Enchants have stats.");
-document.getElementById("f").onsubmit=e=>{e.preventDefault();const q=document.getElementById("q").value.trim();if(!q)return;document.getElementById("q").value="";add("user",q);add("bot",talk(q));};
-document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("on"));document.querySelectorAll(".pane").forEach(x=>x.classList.remove("on"));b.classList.add("on");document.getElementById(b.dataset.tab).classList.add("on");});
-const grid=Array(9).fill(""); let hand="";
-const gEl=document.getElementById("g");
-function drawGrid(){gEl.innerHTML="";grid.forEach((v,i)=>{const d=document.createElement("button");d.type="button";d.className="slot"+(v?" on":"");d.textContent=nice(v)||v;d.onclick=()=>{grid[i]=hand||"";drawGrid();detect();};gEl.appendChild(d);});}
-function detect(){const out=document.getElementById("out");for(const r of RECIPES){if(r.l){if(r.l.slice().sort().join(",")===grid.filter(Boolean).slice().sort().join(",")){out.textContent=r.o+(r.n>1?" x"+r.n:"");return;}}else if(r.s){const cells=[];for(let y=0;y<3;y++){const row=((r.s[y]||"")+"   ").slice(0,3);for(let x=0;x<3;x++){const ch=row[x];cells.push(ch===" "?"":(r.m[ch]||""));}}if(cells.every((c,i)=>c===grid[i])){out.textContent=r.o+(r.n>1?" x"+r.n:"");return;}}}out.textContent=grid.some(Boolean)?"No match":"?";}
-function showRecipe(r){grid.fill("");if(r.l)r.l.forEach((it,i)=>{if(i<9)grid[i]=it});else if(r.s)r.s.forEach((row,y)=>{for(let x=0;x<3;x++){const ch=(row+"   ")[x];if(ch&&ch!==" ")grid[y*3+x]=r.m[ch];}});drawGrid();detect();}
-["planks","cobblestone","stick","iron_ingot","gold_ingot","diamond","coal","redstone","string","leather","book","wool","sand","gunpowder","ender_pearl","blaze_powder","obsidian","wheat","apple"].forEach(k=>{const b=document.createElement("button");b.type="button";b.textContent=nice(k);b.onclick=()=>{hand=hand===k?"":k;[...document.getElementById("pal").children].forEach(x=>x.style.outline="");if(hand)b.style.outline="2px solid var(--yes)";};document.getElementById("pal").appendChild(b);});
-function renderRecipes(filter){const box=document.getElementById("rlist");box.innerHTML="";const f=(filter||"").toLowerCase();const hits=RECIPES.filter(r=>!f||r.o.includes(f));document.getElementById("rcnt").textContent=hits.length+" / "+RECIPES.length+" recipes";hits.slice(0,80).forEach(r=>{const b=document.createElement("button");b.type="button";b.textContent=r.o+(r.n>1?" x"+r.n:"");b.onclick=()=>showRecipe(r);box.appendChild(b);});}
-renderRecipes("");document.getElementById("rs").oninput=e=>renderRecipes(e.target.value);
-document.getElementById("clearG").onclick=()=>{grid.fill("");hand="";drawGrid();detect();};drawGrid();
-function renderBlocks(filter){const box=document.getElementById("blist");box.innerHTML="";const f=(filter||"").toLowerCase();BLOCKS.filter(b=>!f||b[0].toLowerCase().includes(f)).forEach(b=>{const d=document.createElement("div");d.className="card";const rows=TIER.map(t=>"<tr><td>"+t+" pick</td><td>"+mineSec(b[1],t,b[2]==="pick"?canPick(b[3],t):(t==="fist"?false:true))+"</td></tr>").join("");d.innerHTML="<b>"+b[0]+"</b><div class=hint>Hardness "+b[1]+" • tool: "+b[2]+"</div><table><tr><th>Tool</th><th>Break time</th></tr>"+rows+"</table>";box.appendChild(d);});}
-renderBlocks("");document.getElementById("bs").oninput=e=>renderBlocks(e.target.value);
-function renderItems(filter){const box=document.getElementById("ilist");box.innerHTML="";const f=(filter||"").toLowerCase();ITEMS.filter(i=>!f||i.join(" ").toLowerCase().includes(f)).forEach(i=>{const d=document.createElement("div");d.className="card";d.innerHTML="<b>"+i[0]+"</b><div class=hint>"+i[1]+"</div>"+i[2];box.appendChild(d);});}
-renderItems("");document.getElementById("is").oninput=e=>renderItems(e.target.value);
-function renderArmor(filter){const box=document.getElementById("alist");box.innerHTML="";const f=(filter||"").toLowerCase();ARMOR.filter(a=>!f||a[0].toLowerCase().includes(f)||a[5].includes(f)).forEach(a=>{const d=document.createElement("div");d.className="card";d.innerHTML="<b>"+a[0]+"</b>Armor "+a[1]+" • toughness "+a[2]+" • KB resist "+a[3]+"<br>Durability "+a[4]+" • repair with "+a[5];box.appendChild(d);});}
-renderArmor("");document.getElementById("as").oninput=e=>renderArmor(e.target.value);
-function renderEnch(filter){const box=document.getElementById("elist");box.innerHTML="";const f=(filter||"").toLowerCase();ENCH.filter(e=>!f||e.join(" ").toLowerCase().includes(f)).forEach(e=>{const d=document.createElement("div");d.className="card";d.innerHTML="<b>"+e[0]+" "+e[1]+"</b><div class=hint>"+e[2]+"</div>"+e[3];box.appendChild(d);});}
-renderEnch("");document.getElementById("es").oninput=e=>renderEnch(e.target.value);
-const mask=document.getElementById("mask"),panel=document.getElementById("panel");
-document.getElementById("devBtn").onclick=()=>{mask.style.display="block";panel.style.display="block"};
-function closeP(){mask.style.display="none";panel.style.display="none"}
-document.getElementById("close1").onclick=closeP;document.getElementById("close2").onclick=closeP;mask.onclick=closeP;
-document.getElementById("unlock").onclick=()=>{if(document.getElementById("devPass").value!==PASS){document.getElementById("err").textContent="Wrong password.";return}document.getElementById("tools").style.display="block"};
-document.getElementById("clearChat").onclick=()=>{log.innerHTML="";add("bot","Chat cleared.");};
+function add(role,text){const el=document.createElement("div");el.className="msg "+role;el.textContent=text;log.appendChild(el);log.scrollTop=log.scrollHeight;}
+add("bot","Ask like a player. How rare is a blue axolotl? Diamond sword sharpness 5? End ship loot? Zombie height?");
+document.getElementById("f").onsubmit=e=>{e.preventDefault();const v=document.getElementById("q").value.trim();if(!v)return;document.getElementById("q").value="";add("user",v);add("bot",talk(v));};
+document.getElementById("q").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();document.getElementById("f").requestSubmit();}});
+function cardMob(m){return '<article class="card"><div class="item">'+pic(m.n)+'<div><b>'+m.n+'</b><div class="hint">'+m.t+'</div></div></div><div class="stat"><span>Health</span><b>'+m.hp+'</b></div><div class="stat"><span>Attack</span><b>'+m.dn+'</b></div><div class="stat"><span>Speed</span><b>'+m.spd+'</b></div><div class="stat"><span>Hitbox</span><b>'+m.w+' x '+m.h+'</b></div><p class="hint">'+m.x+'</p></article>';}
+function renderMobs(f=""){const q=f.toLowerCase();document.getElementById("mlist").innerHTML=MOBS.filter(m=>!q||(m.n+m.t+m.x).toLowerCase().includes(q)).map(cardMob).join("")||"<p class=hint>No mob matches.</p>";}
+renderMobs();document.getElementById("ms").oninput=e=>renderMobs(e.target.value);
+function renderWorld(f=""){const q=f.toLowerCase();const b=BIOMES.filter(m=>!q||(m[0]+m[1]+m[2]).toLowerCase().includes(q)).map(m=>'<article class="card"><b>'+m[0]+'</b> <span class="tag">'+m[1]+'</span><p class="hint">'+m[2]+'</p></article>').join("");const l=LOOT.filter(m=>!q||(m[0]+m[1]).toLowerCase().includes(q)).map(m=>'<article class="card">'+pic("Chest")+'<b> '+m[0]+'</b><p class="hint">'+m[1]+'</p></article>').join("");document.getElementById("wlist").innerHTML=b+l;}
+renderWorld();document.getElementById("ws").oninput=e=>renderWorld(e.target.value);
+function renderPot(f=""){const q=f.toLowerCase();document.getElementById("plist").innerHTML=POTIONS.filter(p=>!q||p.join(" ").toLowerCase().includes(q)).map(p=>'<article class="card"><div class="item">'+pic("Potion")+'<div><b>'+p[0]+'</b><div class="hint">'+p[1]+' \u00b7 '+p[2]+'</div></div></div><p class="hint">'+p[3]+'</p></article>').join("");}
+renderPot();document.getElementById("ps").oninput=e=>renderPot(e.target.value);
+let forge={kind:"sword",mat:"diamond",sh:5};
+function paintForge(){const s=stats(forge.kind,forge.mat,forge.sh);const iname=forge.mat.charAt(0).toUpperCase()+forge.mat.slice(1)+" "+forge.kind.charAt(0).toUpperCase()+forge.kind.slice(1);
+document.getElementById("forgeBox").innerHTML='<div class="hero"><div class="item">'+pic(iname)+'<div><div class="hint">Forge</div><div class="big">'+s.hit+'</div><div class="hint">Java damage with Sharpness '+forge.sh+'</div></div></div><div class="stat"><span>Base</span><b>'+s.base+'</b></div><div class="stat"><span>Sharpness extra</span><b>+'+s.extra+'</b></div><div class="stat"><span>Full hit</span><b>'+s.hit+' ('+(s.hit/2)+' hearts)</b></div><div class="stat"><span>Crit</span><b>'+s.crit+'</b></div><div class="stat"><span>DPS</span><b>'+s.dps+'</b></div><div class="stat"><span>Durability</span><b>'+s.dur+'</b></div></div><label class="hint">Weapon</label><select id="fk"><option>sword</option><option>axe</option></select><label class="hint">Material</label><select id="fm">'+Object.keys(SW).map(m=>"<option>"+m+"</option>").join("")+'</select><div class="hint">Sharpness</div><div class="chips" id="sh">'+[0,1,2,3,4,5].map(i=>'<button type="button" class="'+(forge.sh===i?"on":"")+'" data-v="'+i+'">'+i+'</button>').join("")+'</div><article class="card">'+pic("Enchanted Book")+'<b> Enchanted book</b><p class="hint">Sharpness II = +1.5 Java damage. Sharpness V = +3.</p></article>';
+document.getElementById("fk").value=forge.kind;document.getElementById("fm").value=forge.mat;
+document.getElementById("fk").onchange=e=>{forge.kind=e.target.value;paintForge();};
+document.getElementById("fm").onchange=e=>{forge.mat=e.target.value;paintForge();};
+document.getElementById("sh").onclick=e=>{const b=e.target.closest("button");if(!b)return;forge.sh=+b.dataset.v;paintForge();};}
+paintForge();
+function renderIndex(f=""){const q=f.toLowerCase();const hits=[];
+MOBS.forEach(m=>{if(!q||(m.n+m.x).toLowerCase().includes(q))hits.push(["Mob",m.n,m.hp+" HP \u00b7 "+m.w+"x"+m.h+" \u00b7 "+m.dn]);});
+BIOMES.forEach(m=>{if(!q||(m[0]+m[2]).toLowerCase().includes(q))hits.push(["Biome",m[0],m[2]]);});
+POTIONS.forEach(m=>{if(!q||m.join(" ").toLowerCase().includes(q))hits.push(["Potion",m[0],m[3]]);});
+ENCH.forEach(m=>{if(!q||m.join(" ").toLowerCase().includes(q))hits.push(["Enchant",m[0]+" "+m[1],m[2]]);});
+LOOT.forEach(m=>{if(!q||(m[0]+m[1]).toLowerCase().includes(q))hits.push(["Loot",m[0],m[1]]);});
+if(!q||/sword|sharp|axe|damage/.test(q)){Object.keys(SW).forEach(mat=>{for(let lv=0;lv<=5;lv++){const s=stats("sword",mat,lv);const line=mat+" sword sharpness "+lv;if(!q||line.includes(q)||q.split(" ").every(w=>w.length<3||line.includes(w))) hits.push(["Forge",mat+" sword Sharpness "+lv,"Java hit "+s.hit+", crit "+s.crit+", DPS "+s.dps]);}});}
+document.getElementById("xlist").innerHTML='<p class="hint">'+hits.length+' matches. Search weapons, mobs, biomes, potions, enchants, loot.</p>'+hits.slice(0,80).map(h=>'<article class="card"><span class="tag">'+h[0]+'</span><b> '+h[1]+'</b><p class="hint">'+h[2]+'</p></article>').join("");}
+renderIndex();document.getElementById("xs").oninput=e=>renderIndex(e.target.value);
+document.getElementById("st").textContent=MOBS.length+" mobs \u00b7 "+BIOMES.length+" biomes \u00b7 "+POTIONS.length+" potions \u00b7 Java combat math";
