@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Donut Chat</title>
+  <style>
+    :root { --bg:#111214; --card:#1b1d22; --line:#2c3038; --ink:#f4efe6; --soft:#a8a194; --accent:#e0a24a; }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.45 -apple-system, BlinkMacSystemFont, sans-serif; }
+    .app { height: 100dvh; display: flex; flex-direction: column; padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+    header { padding: 12px 16px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+    header b { color: var(--accent); }
+    header button { background: transparent; color: var(--soft); border: 0; font-size: 14px; }
+    #log { flex: 1; overflow: auto; padding: 16px; }
+    .msg { margin: 0 0 14px; max-width: 92%; }
+    .msg.user { margin-left: auto; background: #2a2418; border-radius: 16px 16px 4px 16px; padding: 10px 12px; }
+    .msg.bot { color: var(--ink); }
+    .msg h3 { margin: 12px 0 6px; font-size: 15px; }
+    .msg p { margin: 0 0 8px; color: #ddd6c8; }
+    form { display: flex; gap: 8px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: var(--card); }
+    textarea { flex: 1; resize: none; min-height: 44px; max-height: 120px; border-radius: 14px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 10px 12px; font: inherit; }
+    form button { border: 0; border-radius: 14px; background: var(--accent); color: #1a1208; font-weight: 700; padding: 0 16px; }
+    .hint { color: var(--soft); font-size: 14px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .chips button { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 8px 12px; font-size: 13px; }
+    .dev { display: none; padding: 16px; }
+    .dev input { width: 100%; padding: 10px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div><b>Donut Chat</b><div class="hint">Minecraft + DonutSMP only</div></div>
+      <button type="button" id="devBtn">Dev</button>
+    </header>
+    <div id="log"></div>
+    <div class="dev" id="devBox">
+      <p>Dev panel password</p>
+      <input id="devPass" type="password" placeholder="Password" />
+      <p class="hint" id="devOut"></p>
+    </div>
+    <form id="f">
+      <textarea id="q" rows="1" placeholder="Ask about Minecraft or DonutSMP"></textarea>
+      <button type="submit">Send</button>
+    </form>
+  </div>
+  <script>
+    const CARDS = [
+      ["join", ["join","ip","bedrock","java","xbox","port","phone"], "How to join DonutSMP", "Official IP: donutsmp.net\nJava: add server donutsmp.net (port 25565).\nBedrock / Xbox / PlayStation / Switch / phone: donutsmp.net port 19132.\nYou need a real Minecraft account."],
+      ["discord", ["discord","invite","ticket","official"], "Donut Discords", "Official Discord: discord.gg/donutsmp\nThat is the real one. Other Donut Discords are fan servers unless official staff links them. Never share passwords."],
+      ["what", ["what","donut","smp","about","drdonut"], "What DonutSMP is", "Public Minecraft survival server owned by DrDonutt. Java and Bedrock share the world. PvP and raiding are allowed. Money is main currency. Shards buy extra shop items."],
+      ["money", ["money","shard","shop","ah","auction","economy"], "Money and shards", "Money = main cash. Shards = premium shop currency. Type /help in game for live commands."],
+      ["start", ["start","first","wood","beginner","day"], "First day in Minecraft", "Punch a tree. Craft a table and wooden pickaxe. Mine stone. Get food. Build a hut before night. A bed skips night."],
+      ["tools", ["tool","armor","diamond","netherite","iron","pickaxe"], "Tools and armor", "wood to stone to iron to diamond to netherite. Iron pick mines diamonds. Diamond pick mines obsidian."],
+      ["ores", ["mine","ore","diamond","cave"], "Mining", "Diamonds are common around Y=-58. Ancient debris is in the Nether around Y=8 to 22."],
+      ["nether", ["nether","portal","blaze"], "Nether", "4x5 obsidian frame, light it. Wear gold around piglins. Fortresses have blazes."],
+      ["end", ["end","dragon","elytra"], "The End", "Eyes of Ender find a stronghold. Beat the dragon, then hunt End cities for elytra."],
+      ["mobs", ["creeper","zombie","warden","mob"], "Mobs", "Creepers explode. The Warden is in the deep dark. Sneak on wool."],
+      ["enchant", ["enchant","mending"], "Enchanting", "15 bookshelves for level 30. Mending plus Unbreaking is the usual late pair."],
+      ["pvp", ["pvp","totem","shield"], "Combat", "Shield, golden apples, totems. Do not flex gear at spawn on Donut."],
+      ["scam", ["scam","staff"], "Scam warning", "Fake staff and free-rank links are scams. Never send login codes or real money."]
+    ];
+    const OFF = "I only answer Minecraft and DonutSMP questions.";
+    function onTopic(q) {
+      const n = q.toLowerCase();
+      if (/^(hi|hey|hello|yo|sup|help)\b/.test(n)) return true;
+      return /minecraft|mc|donut|smp|discord|java|bedrock|creeper|diamond|nether|end|redstone|ip|join|pvp|mob|ore|enchant|potion|tool|armor|shard|money|dragon|warden/.test(n);
+    }
+    function answer(q) {
+      const n = q.toLowerCase();
+      if (!onTopic(n)) return OFF;
+      if (/^(hi|hey|hello|yo|sup)\b/.test(n)) return "Hey. Ask how to join DonutSMP or any Minecraft basics.";
+      const scored = CARDS.map(function(c) {
+        var s = 0;
+        c[1].forEach(function(t) { if (n.indexOf(t) >= 0) s += 2; });
+        return { s: s, title: c[2], body: c[3] };
+      }).filter(function(x){return x.s>0;}).sort(function(a,b){return b.s-a.s;});
+      if (!scored.length) return "IP: donutsmp.net\nBedrock port: 19132\nOfficial Discord: discord.gg/donutsmp";
+      return scored.slice(0,2).map(function(x){return "### "+x.title+"\n"+x.body;}).join("\n\n");
+    }
+    const log = document.getElementById("log");
+    function add(role, text) {
+      const el = document.createElement("div");
+      el.className = "msg " + role;
+      el.innerHTML = text.split("\n").map(function(line){
+        if (line.indexOf("### ")===0) return "<h3>"+line.slice(4)+"</h3>";
+        return "<p>"+line.replace(/</g,"<")+"</p>";
+      }).join("");
+      log.appendChild(el);
+      log.scrollTop = log.scrollHeight;
+    }
+    add("bot", "### Donut Chat\nWorks in Safari on your phone. Ask about Minecraft or DonutSMP.");
+    const chips = document.createElement("div");
+    chips.className = "chips";
+    ["How do I join DonutSMP?", "Official Discord?", "Where are diamonds?", "What are shards?"].forEach(function(t){
+      const b = document.createElement("button");
+      b.textContent = t;
+      b.onclick = function(){ send(t); };
+      chips.appendChild(b);
+    });
+    log.appendChild(chips);
+    function send(text) {
+      const q = (text || document.getElementById("q").value).trim();
+      if (!q) return;
+      document.getElementById("q").value = "";
+      add("user", q);
+      add("bot", answer(q));
+    }
+    document.getElementById("f").onsubmit = function(e){ e.preventDefault(); send(); };
+    document.getElementById("devBtn").onclick = function(){
+      const box = document.getElementById("devBox");
+      box.style.display = box.style.display === "block" ? "none" : "block";
+    };
+    document.getElementById("devPass").addEventListener("keydown", function(e){
+      if (e.key === "Enter") {
+        document.getElementById("devOut").textContent = e.target.value === "FERRARI1" ? "Unlocked. Phone page is ready." : "Wrong password.";
+      }
+    });
+  </script>
+</body>
+</html>
