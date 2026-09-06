@@ -9,119 +9,83 @@
 @media(prefers-color-scheme:dark){:root{--bg:#111214;--card:#1b1d22;--line:#2c3038;--ink:#f4efe6;--soft:#a8a194;--user:#2a2418}}
 *{box-sizing:border-box}html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,sans-serif}
 .app{height:100dvh;display:flex;flex-direction:column}
-header{padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top));border-bottom:1px solid var(--line)}
-header b{font-size:17px}
-#log{flex:1;overflow:auto;padding:16px;-webkit-overflow-scrolling:touch}
-.msg{margin:0 0 12px;max-width:94%;white-space:pre-wrap;padding:10px 12px}
+header{padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top));border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+#log{flex:1;overflow:auto;padding:16px}
+.msg{margin:0 0 12px;max-width:94%;padding:10px 12px;white-space:pre-wrap}
 .user{margin-left:auto;background:var(--user);border-radius:16px 16px 4px 16px}
 .bot{background:var(--card);border:1px solid var(--line);border-radius:16px 16px 16px 4px}
-form{display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--card)}
-textarea{flex:1;resize:none;min-height:44px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:10px 12px;font:inherit}
+form{display:flex;gap:8px;padding:10px 12px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--card)}
+textarea{flex:1;min-height:44px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:10px;font:inherit;resize:none}
 form button{border:0;border-radius:14px;background:var(--ink);color:var(--bg);font-weight:700;padding:0 14px}
 .hint{color:var(--soft);font-size:13px}
-header .row{display:flex;justify-content:space-between;align-items:center}
-header button{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 10px;color:var(--ink)}
-#mask{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:20}
+header button{background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:6px 10px}
+#mask{display:none;position:fixed;inset:0;background:#0006;z-index:20}
 #panel{display:none;position:fixed;left:0;right:0;bottom:0;background:var(--card);z-index:21;padding:16px 16px calc(20px + env(safe-area-inset-bottom));border-radius:18px 18px 0 0}
-#panel input{width:100%;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;margin:8px 0}
-#panel button{border:0;border-radius:12px;padding:10px 12px;margin-right:8px}
+#panel input{width:100%;padding:10px;margin:8px 0;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
 </style></head>
 <body>
 <div class="app">
-<header><div class="row"><div><b>Donut Chat</b><div class="hint">Ask normally. I answer the question you typed.</div></div><button type="button" id="devBtn">Dev</button></div></header>
+<header><div><b>Donut Chat</b><div class="hint" id="st">Loading facts…</div></div><button type="button" id="devBtn">Dev</button></header>
 <div id="log"></div>
-<form id="f"><textarea id="q" rows="1" placeholder="Message"></textarea><button>Send</button></form>
+<form id="f"><textarea id="q" placeholder="Message"></textarea><button>Send</button></form>
 </div>
 <div id="mask"></div>
-<div id="panel">
-<p>Password</p>
-<input id="devPass" type="password" />
-<button type="button" id="unlock">Unlock</button>
-<button type="button" id="close1">Close</button>
-<p id="gateErr" class="hint"></p>
-<div id="tools" style="display:none">
-<p class="hint">Works with no key.</p>
-<button type="button" id="clearChat">Clear chat</button>
-<button type="button" id="close2">Close</button>
-</div>
-</div>
+<div id="panel"><p>Password</p><input id="devPass" type="password" /><button type="button" id="unlock">Unlock</button> <button type="button" id="close1">Close</button><p id="err" class="hint"></p><div id="tools" style="display:none"><p class="hint" id="devInfo"></p><button type="button" id="clearChat">Clear chat</button> <button type="button" id="close2">Close</button></div></div>
 <script>
 const PASS="FERRARI1";
-const prev={item:"",intent:""};
-function n(s){return String(s||"").toLowerCase().replace(/[^a-z0-9. $]/g," ").replace(/ +/g," ").trim()}
-function pick(a){return a[Math.floor(Math.random()*a.length)]}
-function greet(q){return /^(hi|hey|hello|yo|sup|hiya)\b/.test(q)}
-function stripHi(q){return q.replace(/^(hi|hey|hello|yo|sup|hiya)[,!. ]+/,"")}
-function itemOf(q){
-  if(/elytra|elytras|wings/.test(q))return "elytra";
-  if(/totem/.test(q))return "totem";
-  if(/diamond/.test(q))return "diamond";
-  if(/shard/.test(q))return "shard";
-  if(/money|coin|balance/.test(q))return "money";
-  return prev.item||"";
+const STOP=new Set("a an the is are was were be to of in on for and or how what where who why do does did i you we they it this that my your me".split(" "));
+let FACTS=[];
+let ready=false;
+function norm(s){return String(s||"").toLowerCase().replace(/[^a-z0-9. ]/g," ").replace(/ +/g," ").trim()}
+function words(s){return norm(s).split(" ").filter(w=>w && !STOP.has(w) && w.length>1)}
+function add(role,text){const el=document.createElement("div");el.className="msg "+role;el.textContent=text;log.appendChild(el);log.scrollTop=log.scrollHeight}
+const log=document.getElementById("log");
+function score(fact, ws){
+  const f=fact.toLowerCase();
+  let s=0;
+  for(const w of ws){ if(f.includes(w)) s += (w.length>4?3:2); }
+  if(/1 in 1200|1\/1200/.test(f) && ws.includes("rare")) s += 8;
+  if(/blue axolotl/.test(f) && ws.includes("blue") && ws.includes("axolotl")) s += 10;
+  return s;
 }
-function intentOf(q){
-  if(/how much|cost|price|worth|ah|auction|sell for|going for/.test(q))return "price";
-  if(/how (do|can|to)|how do i/.test(q))return "how";
-  if(/where/.test(q))return "where";
-  if(/what is|whats|who/.test(q))return "what";
-  if(/join|ip|port|bedrock|java|xbox|ps5|switch|phone/.test(q))return "join";
-  if(/discord/.test(q))return "discord";
-  if(prev.intent && q.split(" ").length<=4)return prev.intent;
-  return "chat";
-}
-function talkPrice(item){
-  if(item==="elytra")return pick([
-    "On Donut AH, elytra have been going for about 450M-480M each recently. Over the last month listings have ranged from around 210M to about 490M. That is in-game money and it moves. Type /ah search elytra and look at the cheapest listing right now.",
-    "Short answer: an elytra on /ah is usually a few hundred million. Public trackers had them near the mid-400 millions. Check /ah search elytra before you buy because someone can undercut in the next minute."
-  ]);
-  if(item==="totem")return "Totem AH prices jump after fights. I will not invent a number. In game: /ah search totem.";
-  if(item==="diamond")return "AH diamond prices change too fast to treat like a fixed shop. For gathering them yourself, mine around Y=-58.";
-  if(item)return "I do not have a live listing for that. Open /ah and search the item name.";
-  return "Which item? If you mean elytra on /ah, those have been in the mid-hundreds of millions lately. Search /ah to see the live number.";
-}
-function talkJoin(q){
-  if(/bedrock|xbox|ps5|playstation|switch|phone|mobile|port/.test(q))return "Bedrock and consoles join donutsmp.net with port 19132.";
-  if(/ip|address/.test(q)) return "The IP is donutsmp.net.";
-  return "Add donutsmp.net. Java can stop there. Bedrock, Xbox, PlayStation, Switch, and phones use port 19132. Real Minecraft account only.";
+function topFacts(q, n){
+  const ws=words(q);
+  if(!ws.length) return [];
+  return FACTS.map(f=>({f,s:score(f,ws)})).filter(x=>x.s>=2).sort((a,b)=>b.s-a.s).slice(0,n);
 }
 function talk(raw){
-  let q=n(raw);
-  const hi=greet(q);
-  q=n(stripHi(q));
-  if(!q)return pick(["Hey. What do you want to know?","Hi. Ask about Donut or Minecraft."]);
-  if(/^(thanks|thank you|ok|okay|cool)$/.test(q)) return pick(["Anytime.","Yep."]);
-  const item=itemOf(q);
-  const intent=intentOf(q);
-  prev.item=item||prev.item;
-  prev.intent=intent;
-  if(!/minecraft|mc|donut|smp|elytra|totem|diamond|nether|end|discord|ah|auction|ip|join|pvp|shard|money|creeper|warden|enchant|dragon|portal|bedrock|java|xbox/.test(q) && intent==="chat")
-    return "I only do Minecraft and DonutSMP. Ask that.";
-  let body="";
-  if(intent==="price") body=talkPrice(item);
-  else if(intent==="join") body=talkJoin(q);
-  else if(intent==="discord") body="Official Discord is discord.gg/donutsmp.";
-  else if(item==="elytra" && (intent==="how"||intent==="where"||intent==="what"))
-    body="If you want one without paying AH prices, beat the dragon and loot an End city ship. On Donut it is usually faster to buy one on /ah.";
-  else if(/owner|drdonut/.test(q)) body="DrDonutt owns DonutSMP.";
-  else if(/shard/.test(q)) body="Shards are Donut extra currency for the shard shop. Normal player trades use money.";
-  else if(/nether/.test(q)) body="Make a 4 by 5 obsidian frame and light it. Beds explode in the Nether.";
-  else if(/dragon|end portal/.test(q)) body="Eyes of Ender find the stronghold. Break the crystals, then the dragon.";
-  else if(/creeper/.test(q)) body="Creepers explode if they get close. Hit and back up, or use a shield.";
-  else if(/mending|enchant/.test(q)) body="15 bookshelves around an enchanting table for level 30. Mending repairs the item with XP you pick up.";
-  else if(/warden/.test(q)) body="Warden is in the deep dark. Sneak, use wool, leave if it wakes.";
-  else if(/pvp|raid/.test(q)) body="Donut is open PvP. Stash extras. Do not walk spawn in your only kit.";
-  else if(/what is donut|whats donut/.test(q)) body="DonutSMP is a huge crossplay survival server. PvP and raiding are allowed. Money and shards are the currencies.";
-  else if(item==="elytra") body="Did you want the AH price, or how to get one from an End ship?";
-  else body=pick(["Ask it in one clear question. Example: how much is an elytra on AH?","I need a bit more. Price, how to get it, or how to join?"]);
-  if(hi) return pick(["Hey \u2014 ","Hi \u2014 "])+body;
-  return body;
+  const q=norm(raw);
+  if(/^(hi|hey|hello|yo|sup)$/.test(q)) return "Hey. Ask a Minecraft or Donut question.";
+  if(!ready) return "Facts are still loading. Try again in a second.";
+  const hits=topFacts(q, 6);
+  if(!hits.length) return "I only cover Minecraft and DonutSMP. Try naming the mob, item, or server thing.";
+  if(/rare|rarity|chance|odds|how common/.test(q)){
+    const rare=hits.find(x=>/1 in |percent|do not spawn|rarest|lightning|uncommon/.test(x.f));
+    if(rare) return rare.f;
+  }
+  if(/how much|cost|price|ah|auction/.test(q)){
+    const p=hits.find(x=>/million|ah|auction|price|currency|shard|money/.test(x.f));
+    if(p) return p.f + " Live listings still change, so check /ah in game.";
+  }
+  const out=[];
+  for(const h of hits){
+    if(out.length>=2) break;
+    if(out.some(t=>t.slice(0,24)===h.f.slice(0,24))) continue;
+    out.push(h.f);
+  }
+  return out.join(" ");
 }
-const log=document.getElementById("log");
-function add(role,text){const el=document.createElement("div");el.className="msg "+role;el.textContent=text;log.appendChild(el);log.scrollTop=log.scrollHeight}
-add("bot","Ask like you would ask a person. Example: how much is an elytra on AH?");
-function send(text){
-  const q=(text||document.getElementById("q").value).trim();
+Promise.all([0,1,2].map(i=>fetch("facts"+i+".json").then(r=>r.json()))).then(parts=>{
+  const list=parts.flat();
+  FACTS=list; ready=true;
+  document.getElementById("st").textContent=list.length.toLocaleString()+" facts loaded";
+  add("bot","Ask anything Minecraft or Donut. Example: how rare is a blue axolotl?");
+}).catch(()=>{
+  document.getElementById("st").textContent="Could not load facts";
+  add("bot","Fact file failed to load. Refresh the page.");
+});
+function send(){
+  const q=document.getElementById("q").value.trim();
   if(!q)return;
   document.getElementById("q").value="";
   add("user",q);
@@ -130,13 +94,13 @@ function send(text){
 document.getElementById("f").onsubmit=e=>{e.preventDefault();send()};
 document.getElementById("q").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
 const mask=document.getElementById("mask"),panel=document.getElementById("panel");
-document.getElementById("devBtn").onclick=()=>{mask.style.display="block";panel.style.display="block"};
+document.getElementById("devBtn").onclick=()=>{mask.style.display="block";panel.style.display="block";document.getElementById("devInfo").textContent=(FACTS.length||0)+" facts"};
 function close(){mask.style.display="none";panel.style.display="none"}
 document.getElementById("close1").onclick=close;
 document.getElementById("close2").onclick=close;
 mask.onclick=close;
 document.getElementById("unlock").onclick=()=>{
-  if(document.getElementById("devPass").value!==PASS){document.getElementById("gateErr").textContent="Wrong password.";return}
+  if(document.getElementById("devPass").value!==PASS){document.getElementById("err").textContent="Wrong password.";return}
   document.getElementById("tools").style.display="block";
 };
 document.getElementById("clearChat").onclick=()=>{log.innerHTML="";add("bot","Chat cleared.")};
