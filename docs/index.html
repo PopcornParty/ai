@@ -17,91 +17,63 @@ header{padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top));borde
 form{display:flex;gap:8px;padding:10px 12px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--card)}
 textarea{flex:1;min-height:44px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:10px;font:inherit;resize:none}
 form button{border:0;border-radius:14px;background:var(--ink);color:var(--bg);font-weight:700;padding:0 14px}
-.hint{color:var(--soft);font-size:13px}
-header button{background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:6px 10px}
+.hint{color:var(--soft);font-size:13px}header button{background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:6px 10px}
 #mask{display:none;position:fixed;inset:0;background:#0006;z-index:20}
-#panel{display:none;position:fixed;left:0;right:0;bottom:0;background:var(--card);z-index:21;padding:16px 16px calc(20px + env(safe-area-inset-bottom));border-radius:18px 18px 0 0}
+#panel{display:none;position:fixed;left:0;right:0;bottom:0;background:var(--card);z-index:21;padding:16px;border-radius:18px 18px 0 0}
 #panel input{width:100%;padding:10px;margin:8px 0;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
 </style></head>
 <body>
 <div class="app">
-<header><div><b>Donut Chat</b><div class="hint" id="st">Loading facts…</div></div><button type="button" id="devBtn">Dev</button></header>
+<header><div><b>Donut Chat</b><div class="hint">Minecraft + DonutSMP</div></div><button type="button" id="devBtn">Dev</button></header>
 <div id="log"></div>
 <form id="f"><textarea id="q" placeholder="Message"></textarea><button>Send</button></form>
 </div>
 <div id="mask"></div>
-<div id="panel"><p>Password</p><input id="devPass" type="password" /><button type="button" id="unlock">Unlock</button> <button type="button" id="close1">Close</button><p id="err" class="hint"></p><div id="tools" style="display:none"><p class="hint" id="devInfo"></p><button type="button" id="clearChat">Clear chat</button> <button type="button" id="close2">Close</button></div></div>
+<div id="panel"><p>Password</p><input id="devPass" type="password" /><button type="button" id="unlock">Unlock</button> <button type="button" id="close1">Close</button><p id="err" class="hint"></p><div id="tools" style="display:none"><button type="button" id="clearChat">Clear chat</button> <button type="button" id="close2">Close</button></div></div>
 <script>
 const PASS="FERRARI1";
-const STOP=new Set("a an the is are was were be to of in on for and or how what where who why do does did i you we they it this that my your me".split(" "));
-let FACTS=[];
-let ready=false;
-function norm(s){return String(s||"").toLowerCase().replace(/[^a-z0-9. ]/g," ").replace(/ +/g," ").trim()}
-function words(s){return norm(s).split(" ").filter(w=>w && !STOP.has(w) && w.length>1)}
+function n(s){return String(s||"").toLowerCase()}
 function add(role,text){const el=document.createElement("div");el.className="msg "+role;el.textContent=text;log.appendChild(el);log.scrollTop=log.scrollHeight}
 const log=document.getElementById("log");
-function score(fact, ws){
-  const f=fact.toLowerCase();
-  let s=0;
-  for(const w of ws){ if(f.includes(w)) s += (w.length>4?3:2); }
-  if(/1 in 1200|1\/1200/.test(f) && ws.includes("rare")) s += 8;
-  if(/blue axolotl/.test(f) && ws.includes("blue") && ws.includes("axolotl")) s += 10;
-  return s;
-}
-function topFacts(q, n){
-  const ws=words(q);
-  if(!ws.length) return [];
-  return FACTS.map(f=>({f,s:score(f,ws)})).filter(x=>x.s>=2).sort((a,b)=>b.s-a.s).slice(0,n);
-}
 function talk(raw){
-  const q=norm(raw);
-  if(/^(hi|hey|hello|yo|sup)$/.test(q)) return "Hey. Ask a Minecraft or Donut question.";
-  if(!ready) return "Facts are still loading. Try again in a second.";
-  const hits=topFacts(q, 6);
-  if(!hits.length) return "I only cover Minecraft and DonutSMP. Try naming the mob, item, or server thing.";
-  if(/rare|rarity|chance|odds|how common/.test(q)){
-    const rare=hits.find(x=>/1 in |percent|do not spawn|rarest|lightning|uncommon/.test(x.f));
-    if(rare) return rare.f;
-  }
-  if(/how much|cost|price|ah|auction/.test(q)){
-    const p=hits.find(x=>/million|ah|auction|price|currency|shard|money/.test(x.f));
-    if(p) return p.f + " Live listings still change, so check /ah in game.";
-  }
-  const out=[];
-  for(const h of hits){
-    if(out.length>=2) break;
-    if(out.some(t=>t.slice(0,24)===h.f.slice(0,24))) continue;
-    out.push(h.f);
-  }
-  return out.join(" ");
+  const q=n(raw);
+  if(/^(hi|hey|hello|yo|sup)!?$/.test(q.trim())) return "Hey. Ask a Minecraft or Donut question.";
+  if(/blue axolotl|axolotl/.test(q) && /rare|rarity|chance|odds|how common|percent/.test(q))
+    return "A blue axolotl is the rarest color. It does not spawn in the wild. When two axolotls breed, the baby is blue 1 time in 1200. Parent colors do not change that chance.";
+  if(/axolotl/.test(q) && /color|type|kind|variant/.test(q))
+    return "Axolotl colors are lucy (pink), wild (brown), gold, cyan, and blue. Blue is the rare one at 1 in 1200 from breeding.";
+  if(/axolotl/.test(q))
+    return "Axolotls live in water in lush caves. Pick them up with a bucket. Feed them buckets of tropical fish to breed. Blue babies are 1 in 1200.";
+  if(/elytra/.test(q) && /ah|auction|cost|price|how much/.test(q))
+    return "On Donut AH, elytra have been around 450M to 480M lately, with the last month about 210M to 490M. Check /ah search elytra for the live listing.";
+  if(/elytra/.test(q))
+    return "Elytra come from End city ships after you beat the dragon. On Donut a lot of people just buy one on /ah.";
+  if(/discord/.test(q)) return "Official Discord is discord.gg/donutsmp.";
+  if(/bedrock|xbox|ps5|switch|phone|port/.test(q) && /join|ip|donut|port/.test(q)) return "Bedrock and consoles: donutsmp.net port 19132.";
+  if(/\bip\b|address/.test(q)) return "The IP is donutsmp.net.";
+  if(/join/.test(q)) return "Add donutsmp.net. Java is just that address. Bedrock uses port 19132. Real account only.";
+  if(/shard/.test(q)) return "Shards are Donut extra currency for the shard shop. Everyday trades use money.";
+  if(/diamond/.test(q) && /where|y |level|mine/.test(q)) return "Diamonds are common around Y=-58 in deepslate. Take water.";
+  if(/nether portal|go to the nether/.test(q)) return "Build a 4 by 5 obsidian frame and light it with flint and steel.";
+  if(/warden/.test(q)) return "The Warden has 500 health and lives in the deep dark. Sneak, use wool, leave if it wakes.";
+  if(/creeper/.test(q)) return "A creeper has 20 health and explodes if it reaches you. Hit and back up, or use a shield.";
+  if(/mending/.test(q)) return "Mending repairs the item with XP you pick up. Librarians can sell the book.";
+  if(/totem/.test(q)) return "Hold a Totem of Undying in your hand to survive one death. Evokers drop them.";
+  if(/owner|drdonut/.test(q)) return "DrDonutt owns DonutSMP.";
+  if(/pink sheep/.test(q) && /rare/.test(q)) return "Natural pink sheep are about 0.164 percent of sheep.";
+  if(/charged creeper/.test(q)) return "A charged creeper only happens when lightning hits a creeper.";
+  if(/minecraft|donut|smp|mob|ore|enchant|potion|biome|nether|end |end$|pvp|raid/.test(q))
+    return "Ask it a bit more plainly. I can do rarity, how to get something, join info, or AH price.";
+  return "That looks off-topic. I answer Minecraft and DonutSMP questions, including mobs like axolotls.";
 }
-Promise.all([0,1,2].map(i=>fetch("facts"+i+".json").then(r=>r.json()))).then(parts=>{
-  const list=parts.flat();
-  FACTS=list; ready=true;
-  document.getElementById("st").textContent=list.length.toLocaleString()+" facts loaded";
-  add("bot","Ask anything Minecraft or Donut. Example: how rare is a blue axolotl?");
-}).catch(()=>{
-  document.getElementById("st").textContent="Could not load facts";
-  add("bot","Fact file failed to load. Refresh the page.");
-});
-function send(){
-  const q=document.getElementById("q").value.trim();
-  if(!q)return;
-  document.getElementById("q").value="";
-  add("user",q);
-  add("bot",talk(q));
-}
+add("bot","Ask a normal question. Try: how rare is a blue axolotl?");
+function send(){const q=document.getElementById("q").value.trim();if(!q)return;document.getElementById("q").value="";add("user",q);add("bot",talk(q))}
 document.getElementById("f").onsubmit=e=>{e.preventDefault();send()};
 document.getElementById("q").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
 const mask=document.getElementById("mask"),panel=document.getElementById("panel");
-document.getElementById("devBtn").onclick=()=>{mask.style.display="block";panel.style.display="block";document.getElementById("devInfo").textContent=(FACTS.length||0)+" facts"};
+document.getElementById("devBtn").onclick=()=>{mask.style.display="block";panel.style.display="block"};
 function close(){mask.style.display="none";panel.style.display="none"}
-document.getElementById("close1").onclick=close;
-document.getElementById("close2").onclick=close;
-mask.onclick=close;
-document.getElementById("unlock").onclick=()=>{
-  if(document.getElementById("devPass").value!==PASS){document.getElementById("err").textContent="Wrong password.";return}
-  document.getElementById("tools").style.display="block";
-};
+document.getElementById("close1").onclick=close;document.getElementById("close2").onclick=close;mask.onclick=close;
+document.getElementById("unlock").onclick=()=>{if(document.getElementById("devPass").value!==PASS){document.getElementById("err").textContent="Wrong password.";return}document.getElementById("tools").style.display="block"};
 document.getElementById("clearChat").onclick=()=>{log.innerHTML="";add("bot","Chat cleared.")};
 </script></body></html>
