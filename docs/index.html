@@ -5,109 +5,94 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Donut Chat</title>
 <style>
-:root{--bg:#111214;--card:#1b1d22;--line:#2c3038;--ink:#f4efe6;--soft:#a8a194;--accent:#e0a24a}
+:root{--bg:#f4f1ea;--card:#fffdf8;--line:#ddd4c5;--ink:#1c1914;--soft:#5c564c;--accent:#b56a16;--user:#efe4cf}
+@media(prefers-color-scheme:dark){:root{--bg:#111214;--card:#1b1d22;--line:#2c3038;--ink:#f4efe6;--soft:#a8a194;--accent:#e0a24a;--user:#2a2418}}
 *{box-sizing:border-box}html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,sans-serif}
 .app{height:100dvh;display:flex;flex-direction:column}
-header{padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top));border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px}
+header{padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top));border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
 header b{color:var(--accent)}header button{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:6px 10px}
 #log{flex:1;overflow:auto;padding:16px;-webkit-overflow-scrolling:touch}
-.msg{margin:0 0 14px;max-width:92%;white-space:pre-wrap}
-.msg.user{margin-left:auto;background:#2a2418;border-radius:16px 16px 4px 16px;padding:10px 12px}
-.msg.bot{background:var(--card);border:1px solid var(--line);border-radius:16px 16px 16px 4px;padding:10px 12px}
+.msg{margin:0 0 12px;max-width:92%;white-space:pre-wrap;padding:10px 12px}
+.msg.user{margin-left:auto;background:var(--user);border-radius:16px 16px 4px 16px}
+.msg.bot{background:var(--card);border:1px solid var(--line);border-radius:16px 16px 16px 4px}
 form{display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--card)}
 textarea{flex:1;resize:none;min-height:44px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:10px 12px;font:inherit}
-form button{border:0;border-radius:14px;background:var(--accent);color:#1a1208;font-weight:700;padding:0 16px}
+form button{border:0;border-radius:14px;background:var(--ink);color:var(--bg);font-weight:700;padding:0 16px}
 .hint{color:var(--soft);font-size:13px}.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
 .chips button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:8px 12px;font-size:13px}
-#mask{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:20}
-#panel{display:none;position:fixed;left:0;right:0;bottom:0;max-height:90dvh;overflow:auto;background:var(--card);z-index:21;padding:16px 16px calc(20px + env(safe-area-inset-bottom));border-radius:18px 18px 0 0}
-#panel input,#panel select{width:100%;margin:6px 0 10px;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+#mask{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20}
+#panel{display:none;position:fixed;left:0;right:0;bottom:0;background:var(--card);z-index:21;padding:16px 16px calc(20px + env(safe-area-inset-bottom));border-radius:18px 18px 0 0}
+#panel input{width:100%;margin:6px 0 10px;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
 #panel .row{display:flex;gap:8px;flex-wrap:wrap}
-#panel button{border:0;border-radius:12px;padding:10px 12px;background:var(--accent);color:#1a1208;font-weight:700}
+#panel button{border:0;border-radius:12px;padding:10px 12px;background:var(--ink);color:var(--bg);font-weight:700}
 #panel button.ghost{background:var(--bg);color:var(--ink);border:1px solid var(--line)}
-#stats{font-size:13px;color:var(--soft);white-space:pre-wrap;background:var(--bg);padding:10px;border-radius:12px}
 </style></head>
 <body>
 <div class="app">
-<header><div><b>Donut Chat</b><div class="hint" id="modeHint"></div></div><button type="button" id="devBtn">Dev</button></header>
+<header><div><b>Donut Chat</b><div class="hint">Minecraft and DonutSMP</div></div><button type="button" id="devBtn">Dev</button></header>
 <div id="log"></div>
-<form id="f"><textarea id="q" rows="1" placeholder="Ask about Minecraft or DonutSMP"></textarea><button type="submit">Send</button></form>
+<form id="f"><textarea id="q" rows="1" placeholder="Message"></textarea><button type="submit">Send</button></form>
 </div>
 <div id="mask"></div>
 <div id="panel">
 <h2>Dev panel</h2>
-<div id="gate"><p class="hint">Password</p><input id="devPass" type="password" /><div class="row"><button type="button" id="unlock">Unlock</button><button type="button" class="ghost" id="close1">Close</button></div><p class="hint" id="gateErr"></p></div>
-<div id="tools" style="display:none"><p id="stats"></p>
-<p class="hint">Paste a model key so every reply can be newly written. The key stays on this phone.</p>
-<select id="prov"><option value="openai">OpenAI</option><option value="openrouter">OpenRouter</option><option value="groq">Groq</option></select>
-<input id="apiKey" type="password" placeholder="API key" />
-<input id="apiModel" placeholder="Model, like gpt-4o-mini" />
-<div class="row"><button type="button" id="saveKey">Save key</button><button type="button" class="ghost" id="clearKey">Remove key</button><button type="button" class="ghost" id="clearChat">Clear chat</button><button type="button" class="ghost" id="close2">Close</button></div>
-</div></div>
+<div id="gate"><input id="devPass" type="password" placeholder="Password" /><div class="row"><button type="button" id="unlock">Unlock</button><button type="button" class="ghost" id="close1">Close</button></div><p class="hint" id="gateErr"></p></div>
+<div id="tools" style="display:none"><p class="hint">Chat works with no key.</p><div class="row"><button type="button" class="ghost" id="clearChat">Clear chat</button><button type="button" class="ghost" id="close2">Close</button></div></div>
+</div>
 <script>
 const PASS="FERRARI1";
-const SYS="You are Donut Chat. Answer the user's actual question first, in natural language. Vary wording each time. Stay accurate. Only discuss Minecraft, DonutSMP, DrDonutt, and Donut Discords. Official IP donutsmp.net. Bedrock port 19132. Official Discord discord.gg/donutsmp. Owner DrDonutt. If unsure, say so. Refuse other topics. Keep it clean. No real-money trading or account theft help.";
-const FACTS={ip:"donutsmp.net",port:"19132",discord:"discord.gg/donutsmp",owner:"DrDonutt"};
-const history=[];
-let cfg={provider:"openai",key:"",model:"gpt-4o-mini"};
-try{Object.assign(cfg,JSON.parse(localStorage.getItem("donut-cfg")||"{}"))}catch(e){}
-function say(a){return a[Math.floor(Math.random()*a.length)]}
+const last={topic:"general",q:""};
+const KB=[
+{keys:["join","how do i play","get on","connect","add server"],lines:["Add the server as donutsmp.net. On Java that is enough. On Bedrock, Xbox, PlayStation, Switch, or phone, use the same address and set the port to 19132. You need a real Minecraft account.","To get on Donut: Multiplayer, add server, donutsmp.net. Bedrock players also type port 19132. Cracked launchers will not work."]},
+{keys:["ip","address","server ip","whats the ip"],lines:["The IP is donutsmp.net.","Use donutsmp.net. That is the official address."]},
+{keys:["port","bedrock port","xbox","playstation","ps5","switch","phone","mobile"],lines:["Bedrock and consoles use donutsmp.net with port 19132. Java can just use the address.","If you are not on Java, the port is 19132."]},
+{keys:["discord","invite","ticket","appeal"],lines:["The official Discord is discord.gg/donutsmp. That is the one for news, tickets, and chat. Other Donut Discords are fan servers unless official staff links them.","Use discord.gg/donutsmp. Do not trust random staff invites in DMs."]},
+{keys:["what is donut","whats donut","donutsmp","about the server"],lines:["DonutSMP is a public Minecraft survival server owned by DrDonutt. Java and Bedrock share the same world. PvP and raiding are part of the mode. The economy uses money plus shards.","It is a huge crossplay SMP. You grind, sell stuff, and fight. It is not a peaceful claims server."]},
+{keys:["owner","who made","who owns","drdonut","dr donut"],lines:["DrDonutt owns DonutSMP and the official Discord.","The owner is DrDonutt."]},
+{keys:["money","coins","make money","auction","ah","sell"],lines:["Money is the main Donut currency. You earn it by selling loot, spawners, and auction listings.","Sell extras and use the auction house for money."]},
+{keys:["shard","shards","shard shop"],lines:["Shards are the second currency. They buy extra items in the shard shop. Everyday trades usually use money.","Shards are premium tokens. Money is everyday cash."]},
+{keys:["first day","how do i start","beginner","new to minecraft"],lines:["Punch a tree, make a crafting table and wooden pickaxe, upgrade to stone, get food, and build a hut before night.","Wood first, then stone tools, then shelter and food."]},
+{keys:["diamond","diamonds","where do i mine"],lines:["Diamonds are common in deepslate around Y=-58. Take a water bucket.","Go near Y=-58 and keep water on the hotbar."]},
+{keys:["nether","portal","blaze"],lines:["Build a standing obsidian frame at least 4 wide and 5 tall, then light it with flint and steel. Beds explode in the Nether.","Nether portal is 4 by 5 obsidian, then light it."]},
+{keys:["end","dragon","stronghold"],lines:["Eyes of Ender lead to a stronghold. Light the portal, break the pillar crystals, then fight the dragon.","Crystals first, dragon second."]},
+{keys:["elytra"],lines:["Beat the dragon, go through an End gateway, find an End city ship, and take the elytra.","Elytra come from End city ships, not from the dragon itself."]},
+{keys:["creeper"],lines:["A creeper sneaks up and explodes. Hit it and back off, or use a shield.","Creepers blow holes in bases. Keep distance."]},
+{keys:["warden","deep dark"],lines:["The Warden lives in the deep dark. Sneak, use wool, and do not set off shriekers.","If you hear the Warden, sneak out."]},
+{keys:["enchant","mending"],lines:["An enchanting table with 15 bookshelves gives level 30 options. Mending repairs gear with XP you pick up.","15 bookshelves around the table, then combine books on an anvil."]},
+{keys:["totem"],lines:["Hold a Totem of Undying in your hand and it saves you from one death.","The totem only works if it is in your hand."]},
+{keys:["pvp","raid"],lines:["Donut is open-world PvP. Stash extras and do not walk spawn in your only good kit.","Expect fights and raids. Hide backups."]},
+{keys:["team","teams"],lines:["Teams were removed from DonutSMP on June 2, 2026."]},
+{keys:["duel","duels"],lines:["Duels were removed from DonutSMP."]},
+{keys:["cracked","tlauncher"],lines:["No. DonutSMP blocks cracked accounts. You need a real Minecraft login."]},
+{keys:["java","bedrock","crossplay"],lines:["Donut is crossplay. Java is computers. Bedrock is phones and consoles. Bedrock uses port 19132.","Both editions can play on donutsmp.net."]},
+{keys:["scam","fake staff"],lines:["Fake staff and free-rank DMs are scams. Never send a login code or real money.","If someone DMs you as staff and asks you to join another server, ignore it."]}
+];
 function nrm(s){return String(s||"").toLowerCase().replace(/[^a-z0-9. ]/g," ").replace(/ +/g," ").trim()}
-function onTopic(q){const n=nrm(q);if(/^(hi|hey|hello|yo|sup|help)$/.test(n))return true;return /minecraft|mc|donut|smp|discord|java|bedrock|creeper|diamond|nether|end|ip|join|pvp|mob|ore|enchant|shard|money|dragon|warden|elytra|totem|mending|owner|drdonut|port|xbox|ps5|switch|portal/.test(n)}
-function localAnswer(q){
-  const n=nrm(q);
-  if(!onTopic(q))return say(["I only do Minecraft and DonutSMP.","Ask a Donut or Minecraft question instead."]);
-  if(/^(hi|hey|hello|yo|sup)$/.test(n))return say(["Hey. What do you want to know?","Yo. IP, Discord, diamonds, nether — go."]);
-  if(/ip|address/.test(n)&&!/discord/.test(n))return say(["DonutSMP IP is "+FACTS.ip+".","Use "+FACTS.ip+" as the server address."]);
-  if(/(bedrock|xbox|ps5|switch|phone|port)/.test(n)&&/(join|port|bedrock|xbox|phone)/.test(n))return say(["Bedrock and consoles: "+FACTS.ip+" port "+FACTS.port+".","Port "+FACTS.port+", address "+FACTS.ip+"."]);
-  if(/join/.test(n))return say(["Java add "+FACTS.ip+". Bedrock uses the same address with port "+FACTS.port+".","To join, add "+FACTS.ip+". On Bedrock set port "+FACTS.port+"."]);
-  if(/discord/.test(n))return say(["Official Discord is "+FACTS.discord+".","Use "+FACTS.discord+". Other Donut Discords are unofficial unless that one links them."]);
-  if(/owner|who made|who owns|drdonut/.test(n))return say([FACTS.owner+" owns DonutSMP.","The owner is "+FACTS.owner+"."]);
-  if(/shard/.test(n))return say(["Shards are Donut extra currency for the shard shop. Money is everyday cash.","Shards buy premium shop items. Normal trades use money."]);
-  if(/money|auction|ah/.test(n))return say(["Money is the main Donut currency from selling loot and auctions.","Earn money by selling items and using the auction house."]);
-  if(/diamond/.test(n))return say(["Mine diamonds around Y=-58 in deepslate and bring water.","Best diamond layer is near Y=-58."]);
-  if(/nether portal|go to the nether|how.*nether/.test(n))return say(["Build a 4 by 5 obsidian frame and light it.","Four wide, five tall, flint and steel."]);
-  if(/elytra/.test(n))return say(["Beat the dragon, take a gateway, loot an End city ship.","Elytra are on End city ships after the dragon fight."]);
-  if(/dragon/.test(n))return say(["Eyes of Ender find the stronghold. Break crystals, then the dragon.","Crystals first, dragon second."]);
-  if(/creeper/.test(n))return say(["Creepers explode if they reach you. Hit and back up.","Do not let a creeper hug your base."]);
-  if(/mending/.test(n))return say(["Mending repairs the item with XP you pick up.","XP you collect fixes Mending gear."]);
-  if(/totem/.test(n))return say(["Hold a Totem of Undying to survive one death.","Totem in hand equals one save."]);
-  if(/team/.test(n))return "Teams were removed from DonutSMP on June 2, 2026.";
-  if(/duel/.test(n))return "Duels were removed from DonutSMP.";
-  return say(["Ask it more specifically. I can do join info, currencies, or vanilla mechanics. For brand-new wording every time, add a model key in Dev.","I can talk, but a live key in Dev is what makes each answer newly written."]);
-}
-function endpoints(){
-  if(cfg.provider==="openrouter")return{url:"https://openrouter.ai/api/v1/chat/completions",model:cfg.model||"openai/gpt-4o-mini"};
-  if(cfg.provider==="groq")return{url:"https://api.groq.com/openai/v1/chat/completions",model:cfg.model||"llama-3.1-8b-instant"};
-  return{url:"https://api.openai.com/v1/chat/completions",model:cfg.model||"gpt-4o-mini"};
-}
-async function liveAnswer(q,node){
-  const info=endpoints();
-  const messages=[{role:"system",content:SYS}].concat(history.slice(-8)).concat([{role:"user",content:q}]);
-  const res=await fetch(info.url,{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+cfg.key},body:JSON.stringify({model:info.model,temperature:0.9,stream:true,messages})});
-  if(!res.ok)throw new Error((await res.text()).slice(0,160)||("HTTP "+res.status));
-  const reader=res.body.getReader();const dec=new TextDecoder();let buf="",full="";
-  while(true){const {done,value}=await reader.read();if(done)break;buf+=dec.decode(value,{stream:true});const lines=buf.split("\n");buf=lines.pop()||"";
-    for(const line of lines){if(!line.startsWith("data:"))continue;const data=line.slice(5).trim();if(data==="[DONE]")continue;try{const json=JSON.parse(data);const piece=json.choices&&json.choices[0]&&json.choices[0].delta&&json.choices[0].delta.content;if(piece){full+=piece;node.textContent=full}}catch(e){}}}
-  if(!full)throw new Error("Empty model reply");return full;
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function scoreItem(item,n){let s=0;for(const k of item.keys){if(n===k)s+=12;else if(n.includes(k))s+=3+Math.min(k.length,8)}return s}
+function onTopic(n){if(/^(hi|hey|hello|yo|sup|thanks|thank you|ok|okay|cool)$/.test(n))return true;if(/minecraft|donut|smp|discord|server/.test(n))return true;return KB.some(item=>scoreItem(item,n)>0)}
+function followup(n){if(/^(what about|and|also|how|why)\b/.test(n)||n.split(" ").length<=4)return (last.q+" "+n).trim();return n}
+function answer(raw){
+  let n=nrm(raw);
+  if(/^(hi|hey|hello|yo|sup)$/.test(n)){return pick(["Hey. Ask about joining Donut, the Discord, money, or any Minecraft thing you are stuck on.","Hi. What do you want to know?"])}
+  if(/^(thanks|thank you|ok|okay|cool)$/.test(n))return pick(["Anytime.","Yep.","Ask another if you want."]);
+  n=nrm(followup(n));
+  if(!onTopic(n)&&!onTopic(nrm(raw)))return pick(["I only talk Minecraft and DonutSMP.","That is outside what I cover. Try a Donut or Minecraft question."]);
+  let best=null,bestScore=0;
+  for(const item of KB){const s=scoreItem(item,n);if(s>bestScore){bestScore=s;best=item}}
+  if(!best||bestScore<3)return pick(["I did not catch the exact thing. Are you asking how to join, Discord, money, shards, or a Minecraft mechanic?","Say it more plainly. Example: How do I join on Xbox?"]);
+  last.q=best.keys[0];
+  return pick(best.lines);
 }
 const log=document.getElementById("log");
-function add(role,text){const el=document.createElement("div");el.className="msg "+role;el.textContent=text;log.appendChild(el);log.scrollTop=log.scrollHeight;return el}
-function setMode(){document.getElementById("modeHint").textContent=cfg.key?"Live model on":"Offline voice — add a key in Dev for new wording every time"}
-setMode();
-add("bot",cfg.key?"Live answers are on.":"I will answer in my own words. For ChatGPT-style new replies each time, open Dev and paste a model key.");
+function add(role,text){const el=document.createElement("div");el.className="msg "+role;el.textContent=text;log.appendChild(el);log.scrollTop=log.scrollHeight}
+add("bot","Ask anything about Minecraft or DonutSMP.");
 const chips=document.createElement("div");chips.className="chips";
-["What is the IP?","How do shards work?","How do I get elytra?","Is Donut Java and Bedrock?"].forEach(t=>{const b=document.createElement("button");b.type="button";b.textContent=t;b.onclick=()=>send(t);chips.appendChild(b)});
+["How do I join?","What is the Discord?","How do shards work?","Where are diamonds?"].forEach(t=>{const b=document.createElement("button");b.type="button";b.textContent=t;b.onclick=()=>send(t);chips.appendChild(b)});
 log.appendChild(chips);
-let busy=false;
-async function send(text){
-  const q=(text||document.getElementById("q").value).trim();if(!q||busy)return;
-  document.getElementById("q").value="";add("user",q);const node=add("bot",cfg.key?"Thinking…":"");busy=true;
-  try{let out=cfg.key?await liveAnswer(q,node):localAnswer(q);node.textContent=out;history.push({role:"user",content:q},{role:"assistant",content:out})}
-  catch(err){node.textContent="Live model failed. "+err.message+"\n\n"+localAnswer(q)}
-  finally{busy=false}
-}
+function send(text){const q=(text||document.getElementById("q").value).trim();if(!q)return;document.getElementById("q").value="";add("user",q);add("bot",answer(q))}
 document.getElementById("f").onsubmit=e=>{e.preventDefault();send()};
+document.getElementById("q").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
 const mask=document.getElementById("mask"),panel=document.getElementById("panel");
 function openDev(){mask.style.display="block";panel.style.display="block"}
 function closeDev(){mask.style.display="none";panel.style.display="none"}
@@ -115,12 +100,7 @@ document.getElementById("devBtn").onclick=openDev;
 document.getElementById("close1").onclick=closeDev;
 document.getElementById("close2").onclick=closeDev;
 mask.onclick=closeDev;
-function refreshStats(){document.getElementById("stats").textContent=cfg.key?"Live model ready ("+cfg.provider+")":"No live key"}
-function unlock(){if(document.getElementById("devPass").value!==PASS){document.getElementById("gateErr").textContent="Wrong password.";return}document.getElementById("gate").style.display="none";document.getElementById("tools").style.display="block";sessionStorage.setItem("donut-dev","1");document.getElementById("prov").value=cfg.provider;document.getElementById("apiKey").value=cfg.key;document.getElementById("apiModel").value=cfg.model;refreshStats()}
-document.getElementById("unlock").onclick=unlock;
-document.getElementById("devPass").addEventListener("keydown",e=>{if(e.key==="Enter")unlock()});
-if(sessionStorage.getItem("donut-dev")==="1"){document.getElementById("gate").style.display="none";document.getElementById("tools").style.display="block";document.getElementById("prov").value=cfg.provider;document.getElementById("apiKey").value=cfg.key;document.getElementById("apiModel").value=cfg.model;refreshStats()}
-document.getElementById("saveKey").onclick=()=>{cfg.provider=document.getElementById("prov").value;cfg.key=document.getElementById("apiKey").value.trim();cfg.model=document.getElementById("apiModel").value.trim()||cfg.model;localStorage.setItem("donut-cfg",JSON.stringify(cfg));setMode();refreshStats()};
-document.getElementById("clearKey").onclick=()=>{cfg.key="";localStorage.setItem("donut-cfg",JSON.stringify(cfg));document.getElementById("apiKey").value="";setMode();refreshStats()};
-document.getElementById("clearChat").onclick=()=>{log.innerHTML="";history.length=0;add("bot","Chat cleared.")};
+document.getElementById("unlock").onclick=()=>{if(document.getElementById("devPass").value!==PASS){document.getElementById("gateErr").textContent="Wrong password.";return}document.getElementById("gate").style.display="none";document.getElementById("tools").style.display="block"};
+document.getElementById("devPass").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("unlock").click()});
+document.getElementById("clearChat").onclick=()=>{log.innerHTML="";add("bot","Chat cleared.")};
 </script></body></html>
