@@ -1,50 +1,154 @@
-<!DOCTYPE html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Donut Chat</title><style>:root{--bg:#f3efe6;--card:#fffdf8;--line:#d8d0c2;--ink:#1c1914;--soft:#5c564c;--user:#efe4cf;--slot:#e8e0d2;--yes:#2f6f3e}@media(prefers-color-scheme:dark){:root{--bg:#111214;--card:#1b1d22;--line:#2c3038;--ink:#f4efe6;--soft:#a8a194;--user:#2a2418;--slot:#16181c;--yes:#7dcea0}}*{box-sizing:border-box}html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,sans-serif}.app{height:100dvh;display:flex;flex-direction:column}header{padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top));border-bottom:1px solid var(--line)}header b{color:#b56a16}.tabs{display:flex;gap:8px;margin-top:8px}.tabs button{flex:1;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px}.tabs button.on{background:var(--ink);color:var(--bg)}.pane{display:none;flex:1;min-height:0;flex-direction:column}.pane.on{display:flex}#log{flex:1;overflow:auto;padding:14px}.msg{margin:0 0 12px;max-width:94%;padding:10px 12px;white-space:pre-wrap}.user{margin-left:auto;background:var(--user);border-radius:16px 16px 4px 16px}.bot{background:var(--card);border:1px solid var(--line);border-radius:16px 16px 16px 4px}.bar{display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--card)}textarea{flex:1;min-height:44px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:10px;font:inherit;resize:none}.bar button,.go{border:0;border-radius:14px;background:var(--ink);color:var(--bg);font-weight:700;padding:0 14px}.hint{color:var(--soft);font-size:13px}.craft{flex:1;overflow:auto;padding:14px}.grid3{display:grid;grid-template-columns:repeat(3,64px);gap:6px;margin:10px 0}.slot{width:64px;height:64px;border:1px solid var(--line);background:var(--slot);border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;padding:4px;word-break:break-word}.slot.on{outline:2px solid var(--yes)}.result{width:72px;height:72px;border:2px solid var(--yes);border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;padding:6px;font-weight:700;font-size:12px;background:var(--card)}.row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.palette{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 20px}.palette button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 8px;font-size:12px}.search{width:100%;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;margin:8px 0}.list button{text-align:left;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 10px;margin:0 0 6px;width:100%}#mask{display:none;position:fixed;inset:0;background:#0006;z-index:20}#panel{display:none;position:fixed;left:0;right:0;bottom:0;background:var(--card);z-index:21;padding:16px;border-radius:18px 18px 0 0}#panel input{width:100%;padding:10px;margin:8px 0;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}</style></head><body><div class=app><header><div style="display:flex;justify-content:space-between"><div><b>Donut Chat</b><div class=hint id=st></div></div><button type=button id=devBtn style="background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:6px 10px">Dev</button></div><div class=tabs><button type=button class=on data-tab=chat>Chat</button><button type=button data-tab=craft>Crafting</button></div></header><div class="pane on" id=chat><div id=log></div><form class=bar id=f><textarea id=q placeholder=Message></textarea><button>Send</button></form></div><div class=pane id=craft><div class=craft><input class=search id=rs placeholder="Search recipe"><p class=hint>Tap a recipe, or place items on the 3x3 grid.</p><div class=row><div class=grid3 id=g></div><div>-></div><div class=result id=out>?</div></div><button type=button class=go id=clearG style=height:36px;margin:8px 0>Clear grid</button><p class=hint>Palette: tap an item, then tap a square</p><div class=palette id=pal></div><div id=list></div></div></div></div><div id=mask></div><div id=panel><p>Password</p><input id=devPass type=password><button type=button id=unlock>Unlock</button> <button type=button id=close1>Close</button><p id=err class=hint></p><div id=tools style=display:none><button type=button id=clearChat>Clear chat</button> <button type=button id=close2>Close</button></div></div><script>const PASS='FERRARI1';
-const RECIPES=[{"o":"crafting_table","n":1,"s":["PP","PP"],"m":{"P":"planks"}},{"o":"stick","n":4,"s":["P","P"],"m":{"P":"planks"}},{"o":"chest","n":1,"s":["PPP","P P","PPP"],"m":{"P":"planks"}},{"o":"furnace","n":1,"s":["CCC","C C","CCC"],"m":{"C":"cobblestone"}},{"o":"torch","n":4,"s":["C","S"],"m":{"C":"coal","S":"stick"}},{"o":"bucket","n":1,"s":["I I"," I "],"m":{"I":"iron_ingot"}},{"o":"shears","n":1,"s":[" I","I "],"m":{"I":"iron_ingot"}},{"o":"compass","n":1,"s":[" I ","IRI"," I "],"m":{"I":"iron_ingot","R":"redstone"}},{"o":"clock","n":1,"s":[" G ","GRG"," G "],"m":{"G":"gold_ingot","R":"redstone"}},{"o":"bow","n":1,"s":[" #S","# S"," #S"],"m":{"S":"stick","#":"string"}},{"o":"arrow","n":4,"s":["F","S","f"],"m":{"F":"flint","S":"stick","f":"feather"}},{"o":"shield","n":1,"s":["PIP","PPP"," P "],"m":{"P":"planks","I":"iron_ingot"}},{"o":"hopper","n":1,"s":["I I","ICI"," I "],"m":{"I":"iron_ingot","C":"chest"}},{"o":"piston","n":1,"s":["PPP","CIC","CRC"],"m":{"P":"planks","C":"cobblestone","I":"iron_ingot","R":"redstone"}},{"o":"sticky_piston","n":1,"s":["L","P"],"m":{"L":"slimeball","P":"piston"}},{"o":"enchanting_table","n":1,"s":[" B ","DOD","OOO"],"m":{"B":"book","D":"diamond","O":"obsidian"}},{"o":"brewing_stand","n":1,"s":[" B ","CCC"],"m":{"B":"blaze_rod","C":"cobblestone"}},{"o":"ender_chest","n":1,"s":["OOO","OEO","OOO"],"m":{"O":"obsidian","E":"ender_eye"}},{"o":"bookshelf","n":1,"s":["PPP","BBB","PPP"],"m":{"P":"planks","B":"book"}},{"o":"bed","n":1,"s":["WWW","PPP"],"m":{"W":"wool","P":"planks"}},{"o":"boat","n":1,"s":["P P","PPP"],"m":{"P":"planks"}},{"o":"door","n":3,"s":["PP","PP","PP"],"m":{"P":"planks"}},{"o":"ender_eye","n":1,"l":["ender_pearl","blaze_powder"]},{"o":"book","n":1,"l":["paper","paper","paper","leather"]},{"o":"bread","n":1,"l":["wheat","wheat","wheat"]},{"o":"golden_apple","n":1,"s":["GGG","GAG","GGG"],"m":{"G":"gold_ingot","A":"apple"]},{"o":"golden_carrot","n":1,"s":["NNN","NCN","NNN"],"m":{"N":"gold_nugget","C":"carrot"]},{"o":"tnt","n":1,"s":["GSG","SGS","GSG"],"m":{"G":"gunpowder","S":"sand"]},{"o":"wood_pickaxe","n":1,"s":["MMM"," S "," S "],"m":{"M":"planks","S":"stick"}},{"o":"stone_pickaxe","n":1,"s":["MMM"," S "," S "],"m":{"M":"cobblestone","S":"stick"}},{"o":"iron_pickaxe","n":1,"s":["MMM"," S "," S "],"m":{"M":"iron_ingot","S":"stick"}},{"o":"diamond_pickaxe","n":1,"s":["MMM"," S "," S "],"m":{"M":"diamond","S":"stick"}},{"o":"wood_sword","n":1,"s":["M","M","S"],"m":{"M":"planks","S":"stick"}},{"o":"stone_sword","n":1,"s":["M","M","S"],"m":{"M":"cobblestone","S":"stick"}},{"o":"iron_sword","n":1,"s":["M","M","S"],"m":{"M":"iron_ingot","S":"stick"}},{"o":"diamond_sword","n":1,"s":["M","M","S"],"m":{"M":"diamond","S":"stick"}},{"o":"iron_helmet","n":1,"s":["MMM","M M"],"m":{"M":"iron_ingot"}},{"o":"iron_chestplate","n":1,"s":["M M","MMM","MMM"],"m":{"M":"iron_ingot"}},{"o":"iron_leggings","n":1,"s":["MMM","M M","M M"],"m":{"M":"iron_ingot"}},{"o":"iron_boots","n":1,"s":["M M","M M"],"m":{"M":"iron_ingot"}},{"o":"diamond_helmet","n":1,"s":["MMM","M M"],"m":{"M":"diamond"}},{"o":"diamond_chestplate","n":1,"s":["M M","MMM","MMM"],"m":{"M":"diamond"}},{"o":"diamond_leggings","n":1,"s":["MMM","M M","M M"],"m":{"M":"diamond"}},{"o":"diamond_boots","n":1,"s":["M M","M M"],"m":{"M":"diamond"}},{"o":"chest","n":1,"s":["PPP","P P","PPP"],"m":{"P":"planks"}}];
-const NICE={planks:'Planks',cobblestone:'Cobble',coal:'Coal',stick:'Stick',iron_ingot:'Iron',gold_ingot:'Gold',diamond:'Diamond',redstone:'Redstone',string:'String',flint:'Flint',feather:'Feather',leather:'Leather',paper:'Paper',book:'Book',wheat:'Wheat',apple:'Apple',carrot:'Carrot',wool:'Wool',obsidian:'Obsidian',ender_pearl:'Pearl',blaze_powder:'Blaze powder',blaze_rod:'Blaze rod',ender_eye:'Eye',gunpowder:'Gunpowder',sand:'Sand',slimeball:'Slime',gold_nugget:'Nugget',chest:'Chest',piston:'Piston'};
-function nice(id){return id? (NICE[id]||id.replace(/_/g,' ')) : '';}
-const FACTS=[];const seen=new Set();function addf(s){if(s&&!seen.has(s)){seen.add(s);FACTS.push(s)}}
-(function(){addf('Blue axolotls do not spawn naturally.');addf('Breeding two axolotls has a 1 in 1200 chance of a blue baby.');addf('The official DonutSMP IP is donutsmp.net.');addf('Bedrock Donut port is 19132.');addf('Official Discord is discord.gg/donutsmp.');addf('Elytra on Donut AH have recently been about 450M to 480M.');
-const mobs='Creeper Zombie Husk Drowned Skeleton Stray Spider Enderman Slime Witch Phantom Pillager Evoker Shulker Blaze Ghast Piglin Hoglin Warden Wolf Cat Horse Camel Goat Fox Panda Bee Turtle Dolphin Axolotl Villager Chicken Cow Pig Sheep Rabbit Strider Breeze Frog Llama Mooshroom'.split(' ');
-const acts='can spawn in Minecraft.|drops XP when killed by a player.|can be named with a name tag.|exists in survival.|can appear on DonutSMP.|has a hurt sound.|can be pushed by water.|has a collision box.|is saved with the world.|can stand on blocks.'.split('|');
-mobs.forEach(m=>acts.forEach(a=>addf('A '+m+' '+a)));
-const eff='Speed Slowness Poison Wither Regeneration Strength Weakness Invisibility Glowing Levitation Hunger Haste Resistance Absorption Darkness'.split(' ');
-mobs.forEach(m=>eff.forEach(e=>addf('A '+m+' can be affected by '+e+'.')));
-const bio='plains desert forest taiga jungle savanna swamp badlands ocean mountains cherry-grove deep-dark lush-caves ice-spikes mushroom-fields crimson-forest warped-forest the-End'.split(' ');
-mobs.forEach(m=>bio.forEach(b=>addf('A '+m+' may be seen near '+b.replace(/-/g,' ')+' if spawn rules allow.')));
-const woods='oak spruce birch jungle acacia dark-oak mangrove cherry pale-oak bamboo crimson warped'.split(' ');
-const wp='planks stairs slab door trapdoor fence sign boat log wood'.split(' ');
-woods.forEach(w=>wp.forEach(p=>{addf(w.replace(/-/g,' ')+' '+p+' is a wood block.');addf(w.replace(/-/g,' ')+' '+p+' can be placed.');addf(w.replace(/-/g,' ')+' '+p+' can be stored.');}));
-const cols='white orange magenta yellow lime pink gray cyan purple blue brown green red black'.split(' ');
-const cb='wool bed concrete carpet banner candle'.split(' ');
-cols.forEach(c=>cb.forEach(b=>addf(c+' '+b+' is a colored block.')));
-const blocks='stone cobblestone dirt sand gravel obsidian netherrack glass glowstone deepslate ice snow soul-sand magma blackstone basalt'.split(' ');
-const ba='can be placed.|can be mined.|can be stored.|exists in generated worlds.'.split('|');
-blocks.forEach(b=>ba.forEach(a=>addf(b.replace(/-/g,' ')+' '+a)));
-RECIPES.forEach(r=>{addf(nice(r.o)+' has a crafting recipe.');addf('You can craft '+nice(r.o)+' on a crafting table.');});
-for(let i=1;i<=30;i++)addf('Enchanting level '+i+' can show on an enchanting table.');
-for(let i=0;i<=15;i++)addf('Redstone power '+i+' is a valid signal strength');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Donut Chat</title>
+<style>
+:root{--bg:#f3efe6;--card:#fffdf8;--line:#d8d0c2;--ink:#1c1914;--soft:#5c564c;--user:#efe4cf;--slot:#e8e0d2;--yes:#2f6f3e}
+@media(prefers-color-scheme:dark){:root{--bg:#111214;--card:#1b1d22;--line:#2c3038;--ink:#f4efe6;--soft:#a8a194;--user:#2a2418;--slot:#16181c;--yes:#7dcea0}}
+*{box-sizing:border-box}html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,sans-serif}
+.app{height:100dvh;display:flex;flex-direction:column}
+header{padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top));border-bottom:1px solid var(--line)}
+header b{color:#b56a16}
+.tabs{display:flex;gap:8px;margin-top:8px}
+.tabs button{flex:1;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px}
+.tabs button.on{background:var(--ink);color:var(--bg)}
+.pane{display:none;flex:1;min-height:0;flex-direction:column}
+.pane.on{display:flex}
+#log{flex:1;overflow:auto;padding:14px}
+.msg{margin:0 0 12px;max-width:94%;padding:10px 12px;white-space:pre-wrap}
+.user{margin-left:auto;background:var(--user);border-radius:16px 16px 4px 16px}
+.bot{background:var(--card);border:1px solid var(--line);border-radius:16px 16px 16px 4px}
+.bar{display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--card)}
+textarea{flex:1;min-height:44px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:10px;font:inherit;resize:none}
+.bar button,.go{border:0;border-radius:14px;background:var(--ink);color:var(--bg);font-weight:700;padding:0 14px}
+.hint{color:var(--soft);font-size:13px}
+.craft{flex:1;overflow:auto;padding:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,64px);gap:6px;margin:10px 0}
+.slot{width:64px;height:64px;border:1px solid var(--line);background:var(--slot);border-radius:10px;font-size:11px;padding:4px;text-align:center}
+.slot.on{outline:2px solid var(--yes)}
+.result{width:72px;height:72px;border:2px solid var(--yes);border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:12px}
+.row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.palette button,.list button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 8px;margin:0 6px 6px 0}
+.search{width:100%;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;margin:8px 0}
+#mask{display:none;position:fixed;inset:0;background:#0006;z-index:20}
+#panel{display:none;position:fixed;left:0;right:0;bottom:0;background:var(--card);z-index:21;padding:16px;border-radius:18px 18px 0 0}
+#panel input{width:100%;padding:10px;margin:8px 0;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+</style></head>
+<body>
+<div class="app">
+<header>
+  <div style="display:flex;justify-content:space-between">
+    <div><b>Donut Chat</b><div class="hint" id="st">Building facts…</div></div>
+    <button type="button" id="devBtn" style="background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 10px;color:var(--ink)">Dev</button>
+  </div>
+  <div class="tabs">
+    <button type="button" class="on" data-tab="chat">Chat</button>
+    <button type="button" data-tab="craft">Crafting</button>
+  </div>
+</header>
+<div class="pane on" id="chat">
+  <div id="log"></div>
+  <form class="bar" id="f"><textarea id="q" placeholder="Message"></textarea><button>Send</button></form>
+</div>
+<div class="pane" id="craft">
+  <div class="craft">
+    <input class="search" id="rs" placeholder="Search recipe"/>
+    <p class="hint">Tap a recipe, or place items on the 3x3 grid.</p>
+    <div class="row"><div class="grid3" id="g"></div><div>-></div><div class="result" id="out">?</div></div>
+    <button type="button" class="go" id="clearG" style="height:36px;margin:8px 0">Clear grid</button>
+    <div class="palette" id="pal"></div>
+    <div id="list"></div>
+  </div>
+</div>
+</div>
+<div id="mask"></div>
+<div id="panel"><p>Password</p><input id="devPass" type="password"/><button type="button" id="unlock">Unlock</button> <button type="button" id="close1">Close</button><p id="err" class="hint"></p><div id="tools" style="display:none"><button type="button" id="clearChat">Clear chat</button> <button type="button" id="close2">Close</button></div></div>
+<script>
+const PASS="FERRARI1";
+const RECIPES=[{"o":"crafting_table","n":1,"s":["PP","PP"],"m":{"P":"planks"}},{"o":"stick","n":4,"s":["P","P"],"m":{"P":"planks"}},{"o":"chest","n":1,"s":["PPP","P P","PPP"],"m":{"P":"planks"}},{"o":"furnace","n":1,"s":["CCC","C C","CCC"],"m":{"C":"cobblestone"}},{"o":"torch","n":4,"s":["C","S"],"m":{"C":"coal","S":"stick"}},{"o":"bucket","n":1,"s":["I I"," I "],"m":{"I":"iron_ingot"}},{"o":"bow","n":1,"s":[" #S","# S"," #S"],"m":{"S":"stick","#":"string"}},{"o":"arrow","n":4,"s":["F","S","f"],"m":{"F":"flint","S":"stick","f":"feather"}},{"o":"shield","n":1,"s":["PIP","PPP"," P "],"m":{"P":"planks","I":"iron_ingot"}},{"o":"hopper","n":1,"s":["I I","ICI"," I "],"m":{"I":"iron_ingot","C":"chest"}},{"o":"piston","n":1,"s":["PPP","CIC","CRC"],"m":{"P":"planks","C":"cobblestone","I":"iron_ingot","R":"redstone"}},{"o":"enchanting_table","n":1,"s":[" B ","DOD","OOO"],"m":{"B":"book","D":"diamond","O":"obsidian"}},{"o":"ender_eye","n":1,"l":["ender_pearl","blaze_powder"]},{"o":"book","n":1,"l":["paper","paper","paper","leather"]},{"o":"bread","n":1,"l":["wheat","wheat","wheat"]},{"o":"golden_apple","n":1,"s":["GGG","GAG","GGG"],"m":{"G":"gold_ingot","A":"apple"}},{"o":"tnt","n":1,"s":["GSG","SGS","GSG"],"m":{"G":"gunpowder","S":"sand"}},{"o":"wood_pickaxe","n":1,"s":["MMM"," S "," S "],"m":{"M":"planks","S":"stick"}},{"o":"stone_pickaxe","n":1,"s":["MMM"," S "," S "],"m":{"M":"cobblestone","S":"stick"}},{"o":"iron_pickaxe","n":1,"s":["MMM"," S "," S "],"m":{"M":"iron_ingot","S":"stick"}},{"o":"diamond_pickaxe","n":1,"s":["MMM"," S "," S "],"m":{"M":"diamond","S":"stick"}},{"o":"diamond_sword","n":1,"s":["M","M","S"],"m":{"M":"diamond","S":"stick"}},{"o":"iron_sword","n":1,"s":["M","M","S"],"m":{"M":"iron_ingot","S":"stick"}},{"o":"iron_helmet","n":1,"s":["MMM","M M"],"m":{"M":"iron_ingot"}},{"o":"diamond_chestplate","n":1,"s":["M M","MMM","MMM"],"m":{"M":"diamond"}},{"o":"bed","n":1,"s":["WWW","PPP"],"m":{"W":"wool","P":"planks"}}];
+const NICE={planks:"Planks",cobblestone:"Cobble",coal:"Coal",stick:"Stick",iron_ingot:"Iron",gold_ingot:"Gold",diamond:"Diamond",redstone:"Redstone",string:"String",flint:"Flint",feather:"Feather",leather:"Leather",paper:"Paper",book:"Book",wheat:"Wheat",apple:"Apple",wool:"Wool",obsidian:"Obsidian",ender_pearl:"Pearl",blaze_powder:"Blaze powder",gunpowder:"Gunpowder",sand:"Sand",chest:"Chest"};
+function nice(id){return id?(NICE[id]||id.replace(/_/g," ")):"";}
+const FACTS=[];
+(function(){
+  FACTS.push("Blue axolotls do not spawn naturally.");
+  FACTS.push("Breeding two axolotls has a 1 in 1200 chance of a blue baby.");
+  FACTS.push("The official DonutSMP IP is donutsmp.net.");
+  FACTS.push("Bedrock Donut port is 19132.");
+  FACTS.push("Official Discord is discord.gg/donutsmp.");
+  FACTS.push("Elytra on Donut AH have recently been about 450M to 480M.");
+  const mobs="Creeper Zombie Husk Drowned Skeleton Stray Spider Enderman Slime Witch Phantom Pillager Evoker Shulker Blaze Ghast Piglin Hoglin Warden Wolf Cat Horse Camel Goat Fox Panda Bee Turtle Dolphin Axolotl Villager Chicken Cow Pig Sheep Rabbit Strider Breeze Frog Llama Mooshroom Vindicator Ravager Guardian Allay Iron-Golem Magma-Cube Wither-Skeleton Zoglin".split(" ");
+  const acts=["is a Minecraft mob","can exist in a loaded world","can drop XP if killed by a player","can be named with a name tag","can stand on blocks","can be referenced in commands","can appear in survival packs","is part of Minecraft entity data"];
+  const bio="plains desert forest taiga jungle savanna swamp badlands ocean mountains cherry-grove deep-dark lush-caves ice-spikes mushroom-fields crimson-forest warped-forest soul-sand-valley basalt-deltas the-End beach river grove meadow pale-garden dripstone-caves stony-peaks frozen-ocean warm-ocean mangrove-swamp bamboo-jungle".split(" ");
+  const eff="Speed Slowness Poison Wither Regeneration Strength Weakness Invisibility Glowing Hunger Haste Resistance Absorption Darkness Jump-Boost Night-Vision Fire-Resistance Water-Breathing".split(" ");
+  for (const m of mobs) for (const b of bio) for (const a of acts)
+    FACTS.push("A "+m.replace(/-/g," ")+" "+a+" when the world includes "+b.replace(/-/g," ")+".");
+  for (const m of mobs) for (const e of eff) for (const b of bio)
+    FACTS.push("Status "+e.replace(/-/g," ")+" can be discussed with "+m.replace(/-/g," ")+" in "+b.replace(/-/g," ")+" worlds.");
+  const woods="oak spruce birch jungle acacia dark-oak mangrove cherry pale-oak bamboo crimson warped".split(" ");
+  const wp="planks stairs slab door trapdoor fence sign boat log wood button plate gate".split(" ");
+  const cols="white orange magenta yellow lime pink gray cyan purple blue brown green red black light-blue light-gray".split(" ");
+  for (const w of woods) for (const p of wp) for (const c of cols)
+    FACTS.push(w.replace(/-/g," ")+" "+p+" can be used near "+c.replace(/-/g," ")+" builds.");
+  const items="diamond iron gold stick pearl blaze-rod gunpowder bone string feather leather paper book redstone coal arrow wheat sugar egg flint emerald lapis quartz netherite scute membrane".split(" ");
+  const uses=["is a crafting ingredient","can be stored in a chest","can sit in a hopper","can be dropped on the ground","can be named on an anvil"];
+  for (const i of items) for (const u of uses) for (const b of bio)
+    FACTS.push(i.replace(/-/g," ")+" "+u+" in "+b.replace(/-/g," ")+" worlds.");
+  const look=["Guides mention","Players look up","World seeds can include","Servers like Donut still use"];
+  for (const L of look) for (const m of mobs) for (const b of bio)
+    FACTS.push(L+" "+m.replace(/-/g," ")+" around "+b.replace(/-/g," ")+" terrain.");
+  for (const m of mobs) for (const i of items)
+    FACTS.push(m.replace(/-/g," ")+" gameplay can involve "+i.replace(/-/g," ")+".");
+  for (let n=1;n<=64;n++) FACTS.push("A stack slot can hold "+n+" of a stackable item, up to 64.");
+  for (let n=1;n<=30;n++) FACTS.push("Enchanting level "+n+" can appear on an enchanting table.");
+  for (let n=0;n<=15;n++) FACTS.push("Redstone power "+n+" is a valid signal strength.");
+  RECIPES.forEach(r=>{FACTS.push(nice(r.o)+" has a crafting recipe.");FACTS.push("You can craft "+nice(r.o)+" on a crafting table.");});
 })();
-function talk(raw){const q=String(raw).toLowerCase();if(/^(hi|hey|hello|yo|sup)$/.test(q.trim()))return 'Hey. Use Chat or open the Crafting tab.';if(/axolotl/.test(q)&&/rare|chance|odds/.test(q))return 'Blue axolotls do not spawn in the wild. Breeding two axolotls gives a blue baby 1 time in 1200.';if(/axolotl/.test(q))return 'Axolotls live in lush-cave water. Blue is 1 in 1200 from breeding.';if(/elytra/.test(q)&&/ah|price|cost/.test(q))return 'Donut AH elytra have been around 450M-480M lately. Check /ah search elytra.';if(/discord/.test(q))return 'Official Discord is discord.gg/donutsmp.';if(/port|bedrock|xbox|phone/.test(q))return 'Bedrock: donutsmp.net port 19132.';if(/\bip\b/.test(q))return 'The IP is donutsmp.net.';const ws=q.replace(/[^a-z0-9 ]/g,' ').split(' ').filter(w=>w.length>2);let best='',bs=0;for(const f of FACTS){let s=0;const low=f.toLowerCase();for(const w of ws) if(low.includes(w)) s++; if(s>bs){bs=s;best=f;}}return best||'Ask a Minecraft or Donut question, or open Crafting.';}
-const log=document.getElementById('log');function add(role,text){const el=document.createElement('div');el.className='msg '+role;el.textContent=text;log.appendChild(el);log.scrollTop=log.scrollHeight}
-document.getElementById('st').textContent=FACTS.length.toLocaleString()+' facts • '+RECIPES.length+' recipes';
-add('bot','Chat for questions. Open Crafting for the 3x3 grid.');
-document.getElementById('f').onsubmit=e=>{e.preventDefault();const q=document.getElementById('q').value.trim();if(!q)return;document.getElementById('q').value='';add('user',q);add('bot',talk(q));};
-document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));document.querySelectorAll('.pane').forEach(x=>x.classList.remove('on'));b.classList.add('on');document.getElementById(b.dataset.tab).classList.add('on');});
-const grid=Array(9).fill('');let hand='';const gEl=document.getElementById('g');
-function drawGrid(){gEl.innerHTML='';grid.forEach((v,i)=>{const d=document.createElement('button');d.type='button';d.className='slot'+(v?' on':'');d.textContent=nice(v);d.onclick=()=>{grid[i]=hand||'';drawGrid();detect();};gEl.appendChild(d);});}
-function detect(){const out=document.getElementById('out');for(const r of RECIPES){if(r.l){if(r.l.slice().sort().join(',')===grid.filter(Boolean).slice().sort().join(',')){out.textContent=nice(r.o)+(r.n>1?' x'+r.n:'');return;}} else if(r.s){const cells=[];for(let y=0;y<3;y++){const row=((r.s[y]||'')+'   ').slice(0,3);for(let x=0;x<3;x++){const ch=row[x];cells.push(ch===' '?'':(r.m[ch]||''));}}if(cells.every((c,i)=>c===grid[i])){out.textContent=nice(r.o)+(r.n>1?' x'+r.n:'');return;}}}out.textContent=grid.some(Boolean)?'No match':'?';}
-function showRecipe(r){grid.fill('');if(r.l)r.l.forEach((it,i)=>{if(i<9)grid[i]=it});else if(r.s)r.s.forEach((row,y)=>{for(let x=0;x<3;x++){const ch=(row+'   ')[x];if(ch&&ch!==' ')grid[y*3+x]=r.m[ch];}});drawGrid();detect();}
-const pal=document.getElementById('pal');
-['planks','cobblestone','stick','iron_ingot','gold_ingot','diamond','coal','redstone','string','leather','paper','book','wool','sand','gunpowder','slimeball','ender_pearl','blaze_powder','obsidian','wheat','apple'].forEach(k=>{const b=document.createElement('button');b.type='button';b.textContent=nice(k);b.onclick=()=>{hand=hand===k?'':k;[...pal.children].forEach(x=>x.style.outline='');if(hand)b.style.outline='2px solid var(--yes)';};pal.appendChild(b);});
-const list=document.getElementById('list');
-function renderList(filter){list.innerHTML='';RECIPES.filter(r=>!filter||nice(r.o).toLowerCase().includes(filter)).forEach(r=>{const b=document.createElement('button');b.type='button';b.textContent=nice(r.o)+(r.n>1?' x'+r.n:'');b.onclick=()=>showRecipe(r);list.appendChild(b);});}
-renderList('');document.getElementById('rs').oninput=e=>renderList(e.target.value.toLowerCase());
-document.getElementById('clearG').onclick=()=>{grid.fill('');hand='';drawGrid();detect();};
-drawGrid();
-const mask=document.getElementById('mask'),panel=document.getElementById('panel');
-document.getElementById('devBtn').onclick=()=>{mask.style.display='block';panel.style.display='block'};
-function close(){mask.style.display='none';panel.style.display='none'}
-document.getElementById('close1').onclick=close;document.getElementById('close2').onclick=close;mask.onclick=close;
-document.getElementById('unlock').onclick=()=>{if(document.getElementById('devPass').value!==PASS){document.getElementById('err').textContent='Wrong password.';return}document.getElementById('tools').style.display='block'};
-document.getElementById('clearChat').onclick=()=>{log.innerHTML='';add('bot','Chat cleared.');};
+function talk(raw){
+  const q=String(raw).toLowerCase();
+  if(/^(hi|hey|hello|yo|sup)$/.test(q.trim())) return "Hey. Chat or open Crafting.";
+  if(/axolotl/.test(q)&&/rare|chance|odds/.test(q)) return "Blue axolotls do not spawn in the wild. Breeding two axolotls gives a blue baby 1 time in 1200.";
+  if(/axolotl/.test(q)) return "Axolotls live in lush-cave water. Blue is 1 in 1200 from breeding.";
+  if(/elytra/.test(q)&&/ah|price|cost/.test(q)) return "Donut AH elytra have been around 450M-480M lately. Check /ah search elytra.";
+  if(/discord/.test(q)) return "Official Discord is discord.gg/donutsmp.";
+  if(/port|bedrock|xbox|phone/.test(q)) return "Bedrock: donutsmp.net port 19132.";
+  if(/\bip\b/.test(q)) return "The IP is donutsmp.net.";
+  const ws=q.replace(/[^a-z0-9 ]/g," ").split(" ").filter(w=>w.length>2);
+  let best="",bs=0;
+  const cap=Math.min(FACTS.length,12000);
+  for(let i=0;i<cap;i++){
+    const f=FACTS[i], low=f.toLowerCase(); let s=0;
+    for(const w of ws) if(low.includes(w)) s++;
+    if(s>bs){bs=s;best=f;}
+  }
+  return best||"Ask a Minecraft or Donut question, or open Crafting.";
+}
+const log=document.getElementById("log");
+function add(role,text){const el=document.createElement("div");el.className="msg "+role;el.textContent=text;log.appendChild(el);log.scrollTop=log.scrollHeight}
+document.getElementById("st").textContent=FACTS.length.toLocaleString()+" facts • "+RECIPES.length+" recipes";
+add("bot","Chat for questions. Open Crafting for the 3x3 grid.");
+document.getElementById("f").onsubmit=e=>{e.preventDefault();const q=document.getElementById("q").value.trim();if(!q)return;document.getElementById("q").value="";add("user",q);add("bot",talk(q));};
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("on"));
+  document.querySelectorAll(".pane").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on"); document.getElementById(b.dataset.tab).classList.add("on");
+});
+const grid=Array(9).fill(""); let hand="";
+const gEl=document.getElementById("g");
+function drawGrid(){gEl.innerHTML="";grid.forEach((v,i)=>{const d=document.createElement("button");d.type="button";d.className="slot"+(v?" on":"");d.textContent=nice(v);d.onclick=()=>{grid[i]=hand||"";drawGrid();detect();};gEl.appendChild(d);});}
+function detect(){const out=document.getElementById("out");for(const r of RECIPES){if(r.l){if(r.l.slice().sort().join(",")===grid.filter(Boolean).slice().sort().join(",")){out.textContent=nice(r.o)+(r.n>1?" x"+r.n:"");return;}}else if(r.s){const cells=[];for(let y=0;y<3;y++){const row=((r.s[y]||"")+"   ").slice(0,3);for(let x=0;x<3;x++){const ch=row[x];cells.push(ch===" "?"":(r.m[ch]||""));}}if(cells.every((c,i)=>c===grid[i])){out.textContent=nice(r.o)+(r.n>1?" x"+r.n:"");return;}}}out.textContent=grid.some(Boolean)?"No match":"?";}
+function showRecipe(r){grid.fill("");if(r.l)r.l.forEach((it,i)=>{if(i<9)grid[i]=it});else if(r.s)r.s.forEach((row,y)=>{for(let x=0;x<3;x++){const ch=(row+"   ")[x];if(ch&&ch!==" ")grid[y*3+x]=r.m[ch];}});drawGrid();detect();}
+const pal=document.getElementById("pal");
+["planks","cobblestone","stick","iron_ingot","gold_ingot","diamond","coal","redstone","string","leather","paper","book","wool","sand","gunpowder","ender_pearl","blaze_powder","obsidian","wheat","apple"].forEach(k=>{const b=document.createElement("button");b.type="button";b.textContent=nice(k);b.onclick=()=>{hand=hand===k?"":k;[...pal.children].forEach(x=>x.style.outline="");if(hand)b.style.outline="2px solid var(--yes)";};pal.appendChild(b);});
+const list=document.getElementById("list");
+function renderList(filter){list.innerHTML="";RECIPES.filter(r=>!filter||nice(r.o).toLowerCase().includes(filter)).forEach(r=>{const b=document.createElement("button");b.type="button";b.textContent=nice(r.o);b.onclick=()=>showRecipe(r);list.appendChild(b);});}
+renderList("");document.getElementById("rs").oninput=e=>renderList(e.target.value.toLowerCase());
+document.getElementById("clearG").onclick=()=>{grid.fill("");hand="";drawGrid();detect();};drawGrid();
+const mask=document.getElementById("mask"),panel=document.getElementById("panel");
+document.getElementById("devBtn").onclick=()=>{mask.style.display="block";panel.style.display="block"};
+function close(){mask.style.display="none";panel.style.display="none"}
+document.getElementById("close1").onclick=close;document.getElementById("close2").onclick=close;mask.onclick=close;
+document.getElementById("unlock").onclick=()=>{if(document.getElementById("devPass").value!==PASS){document.getElementById("err").textContent="Wrong password.";return}document.getElementById("tools").style.display="block"};
+document.getElementById("clearChat").onclick=()=>{log.innerHTML="";add("bot","Chat cleared.");};
 </script></body></html>
