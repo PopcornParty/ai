@@ -1,1 +1,69 @@
-<placeholder>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Donut Chat</title>
+<style>
+:root{--bg:#f3efe6;--card:#fffdf8;--line:#d8d0c2;--ink:#1c1914;--soft:#5c564c;--user:#efe4cf;--slot:#e8e0d2;--yes:#2f6f3e}
+@media(prefers-color-scheme:dark){:root{--bg:#111214;--card:#1b1d22;--line:#2c3038;--ink:#f4efe6;--soft:#a8a194;--user:#2a2418;--slot:#16181c;--yes:#7dcea0}}
+*{box-sizing:border-box}html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,sans-serif}
+.app{height:100dvh;display:flex;flex-direction:column}
+header{padding:10px 12px 8px;padding-top:calc(10px + env(safe-area-inset-top));border-bottom:1px solid var(--line)}
+header b{color:#b56a16}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tabs button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:7px 9px;font-size:13px}
+.tabs button.on{background:var(--ink);color:var(--bg)}
+.pane{display:none;flex:1;min-height:0;flex-direction:column}
+.pane.on{display:flex}
+#log{flex:1;overflow:auto;padding:14px}
+.msg{margin:0 0 12px;max-width:94%;padding:10px 12px;white-space:pre-wrap}
+.user{margin-left:auto;background:var(--user);border-radius:16px 16px 4px 16px}
+.bot{background:var(--card);border:1px solid var(--line);border-radius:16px 16px 16px 4px}
+.bar{display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--card)}
+textarea{flex:1;min-height:44px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:10px;font:inherit;resize:none}
+.bar button,.go{border:0;border-radius:14px;background:var(--ink);color:var(--bg);font-weight:700;padding:0 14px}
+.hint{color:var(--soft);font-size:13px}
+.wiki{flex:1;overflow:auto;padding:12px 14px calc(16px + env(safe-area-inset-bottom))}
+.search{width:100%;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;margin:0 0 10px}
+.card{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:10px;margin:0 0 8px}
+.card b{display:block;margin-bottom:4px}
+.grid3{display:grid;grid-template-columns:repeat(3,64px);gap:6px;margin:8px 0}
+.slot{width:64px;height:64px;border:1px solid var(--line);background:var(--slot);border-radius:10px;font-size:11px;padding:4px;text-align:center}
+.slot.on{outline:2px solid var(--yes)}
+.result{width:72px;height:72px;border:2px solid var(--yes);border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:12px}
+.row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+#pal button,#rlist button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 8px;margin:0 6px 6px 0}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td,th{border-bottom:1px solid var(--line);padding:5px 4px;text-align:left}
+#mask{display:none;position:fixed;inset:0;background:#0006;z-index:20}
+#panel{display:none;position:fixed;left:0;right:0;bottom:0;background:var(--card);z-index:21;padding:16px;border-radius:18px 18px 0 0}
+#panel input{width:100%;padding:10px;margin:8px 0;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+</style></head>
+<body>
+<div class="app">
+<header>
+  <div style="display:flex;justify-content:space-between">
+    <div><b>Donut Chat</b><div class="hint" id="st"></div></div>
+    <button type="button" id="devBtn" style="background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 10px;color:var(--ink)">Dev</button>
+  </div>
+  <div class="tabs">
+    <button type="button" class="on" data-tab="chat">Chat</button>
+    <button type="button" data-tab="craft">Craft</button>
+    <button type="button" data-tab="blocks">Blocks</button>
+    <button type="button" data-tab="items">Items</button>
+    <button type="button" data-tab="armor">Armor</button>
+    <button type="button" data-tab="ench">Enchants</button>
+  </div>
+</header>
+<div class="pane on" id="chat"><div id="log"></div><form class="bar" id="f"><textarea id="q" placeholder="Message"></textarea><button>Send</button></form></div>
+<div class="pane" id="craft"><div class="wiki"><input class="search" id="rs" placeholder="Search recipes"/><p class="hint" id="rcnt"></p><div class="row"><div class="grid3" id="g"></div><div>-></div><div class="result" id="out">?</div></div><button type="button" class="go" id="clearG" style="height:36px;margin:8px 0">Clear grid</button><div id="pal"></div><div id="rlist"></div></div></div>
+<div class="pane" id="blocks"><div class="wiki"><input class="search" id="bs" placeholder="Search blocks"/><div id="blist"></div></div></div>
+<div class="pane" id="items"><div class="wiki"><input class="search" id="is" placeholder="Search items"/><div id="ilist"></div></div></div>
+<div class="pane" id="armor"><div class="wiki"><input class="search" id="as" placeholder="Search armor"/><div id="alist"></div></div></div>
+<div class="pane" id="ench"><div class="wiki"><input class="search" id="es" placeholder="Search enchantments"/><div id="elist"></div></div></div>
+</div>
+<div id="mask"></div>
+<div id="panel"><p>Password</p><input id="devPass" type="password"/><button type="button" id="unlock">Unlock</button> <button type="button" id="close1">Close</button><p id="err" class="hint"></p><div id="tools" style="display:none"><button type="button" id="clearChat">Clear chat</button> <button type="button" id="close2">Close</button></div></div>
+<script src="app.js"></script>
+</body></html>
