@@ -30,7 +30,7 @@ textarea{flex:1;min-height:44px;border-radius:14px;border:1px solid var(--line);
 .slot.on{outline:2px solid var(--yes)}
 .result{width:72px;height:72px;border:2px solid var(--yes);border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:12px}
 .row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
-.palette button,.list button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 8px;margin:0 6px 6px 0}
+#pal button,#list button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 8px;margin:0 6px 6px 0}
 .search{width:100%;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;margin:8px 0}
 #mask{display:none;position:fixed;inset:0;background:#0006;z-index:20}
 #panel{display:none;position:fixed;left:0;right:0;bottom:0;background:var(--card);z-index:21;padding:16px;border-radius:18px 18px 0 0}
@@ -67,7 +67,7 @@ textarea{flex:1;min-height:44px;border-radius:14px;border:1px solid var(--line);
 <div id="panel"><p>Password</p><input id="devPass" type="password"/><button type="button" id="unlock">Unlock</button> <button type="button" id="close1">Close</button><p id="err" class="hint"></p><div id="tools" style="display:none"><button type="button" id="clearChat">Clear chat</button> <button type="button" id="close2">Close</button></div></div>
 <script>
 const PASS="FERRARI1";
-const RECIPES=[{"o":"crafting_table","n":1,"s":["PP","PP"],"m":{"P":"planks"}},{"o":"stick","n":4,"s":["P","P"],"m":{"P":"planks"}},{"o":"chest","n":1,"s":["PPP","P P","PPP"],"m":{"P":"planks"}},{"o":"furnace","n":1,"s":["CCC","C C","CCC"],"m":{"C":"cobblestone"}},{"o":"torch","n":4,"s":["C","S"],"m":{"C":"coal","S":"stick"}},{"o":"bucket","n":1,"s":["I I"," I "],"m":{"I":"iron_ingot"}},{"o":"bow","n":1,"s":[" #S","# S"," #S"],"m":{"S":"stick","#":"string"}},{"o":"arrow","n":4,"s":["F","S","f"],"m":{"F":"flint","S":"stick","f":"feather"}},{"o":"hopper","n":1,"s":["I I","ICI"," I "],"m":{"I":"iron_ingot","C":"chest"}},{"o":"piston","n":1,"s":["PPP","CIC","CRC"],"m":{"P":"planks","C":"cobblestone","I":"iron_ingot","R":"redstone"}},{"o":"ender_eye","n":1,"l":["ender_pearl","blaze_powder"]},{"o":"golden_apple","n":1,"s":["GGG","GAG","GGG"],"m":{"G":"gold_ingot","A":"apple"}},{"o":"diamond_pickaxe","n":1,"s":["MMM"," S "," S "],"m":{"M":"diamond","S":"stick"}},{"o":"diamond_sword","n":1,"s":["M","M","S"],"m":{"M":"diamond","S":"stick"}},{"o":"iron_pickaxe","n":1,"s":["MMM"," S "," S "],"m":{"M":"iron_ingot","S":"stick"}},{"o":"tnt","n":1,"s":["GSG","SGS","GSG"],"m":{"G":"gunpowder","S":"sand"}},{"o":"bed","n":1,"s":["WWW","PPP"],"m":{"W":"wool","P":"planks"}}];
+const RECIPES=[{"o":"crafting_table","n":1,"s":["PP","PP"],"m":{"P":"planks"}},{"o":"stick","n":4,"s":["P","P"],"m":{"P":"planks"}},{"o":"chest","n":1,"s":["PPP","P P","PPP"],"m":{"P":"planks"}},{"o":"furnace","n":1,"s":["CCC","C C","CCC"],"m":{"C":"cobblestone"}},{"o":"torch","n":4,"s":["C","S"],"m":{"C":"coal","S":"stick"}},{"o":"bucket","n":1,"s":["I I"," I "],"m":{"I":"iron_ingot"}},{"o":"bow","n":1,"s":[" #S","# S"," #S"],"m":{"S":"stick","#":"string"}},{"o":"arrow","n":4,"s":["F","S","f"],"m":{"F":"flint","S":"stick","f":"feather"}},{"o":"hopper","n":1,"s":["I I","ICI"," I "],"m":{"I":"iron_ingot","C":"chest"}},{"o":"golden_apple","n":1,"s":["GGG","GAG","GGG"],"m":{"G":"gold_ingot","A":"apple"}},{"o":"diamond_sword","n":1,"s":["M","M","S"],"m":{"M":"diamond","S":"stick"}},{"o":"diamond_pickaxe","n":1,"s":["MMM"," S "," S "],"m":{"M":"diamond","S":"stick"}},{"o":"tnt","n":1,"s":["GSG","SGS","GSG"],"m":{"G":"gunpowder","S":"sand"}},{"o":"bed","n":1,"s":["WWW","PPP"],"m":{"W":"wool","P":"planks"}}];
 const NICE={planks:"Planks",cobblestone:"Cobble",coal:"Coal",stick:"Stick",iron_ingot:"Iron",gold_ingot:"Gold",diamond:"Diamond",redstone:"Redstone",string:"String",flint:"Flint",feather:"Feather",leather:"Leather",book:"Book",wheat:"Wheat",apple:"Apple",wool:"Wool",obsidian:"Obsidian",ender_pearl:"Pearl",blaze_powder:"Blaze powder",gunpowder:"Gunpowder",sand:"Sand",chest:"Chest"};
 function nice(id){return id?(NICE[id]||id.replace(/_/g," ")):"";}
 const MOBS="Creeper Zombie Husk Drowned Skeleton Stray Spider Enderman Slime Witch Phantom Pillager Evoker Shulker Blaze Ghast Piglin Hoglin Warden Wolf Cat Horse Camel Goat Fox Panda Bee Turtle Dolphin Axolotl Villager Chicken Cow Pig Sheep Rabbit Strider Breeze Frog Llama Mooshroom Vindicator Ravager Guardian Allay".split(" ");
@@ -80,6 +80,8 @@ const WOODS=["oak","spruce","birch","jungle","acacia","dark oak","mangrove","che
 const WPART=["planks","stairs","slab","door","trapdoor","fence","sign","boat","log","button"];
 const COLS=["white","orange","magenta","yellow","lime","pink","gray","cyan","purple","blue","brown","green","red","black"];
 const LOOK=["Guides mention","Players look up","World seeds can include","Servers like Donut still use","Datapacks can list"];
+const ENCH=["Protection","Sharpness","Efficiency","Unbreaking","Fortune","Silk Touch","Mending","Power","Looting","Thorns","Feather Falling","Fire Aspect","Knockback","Infinity","Punch","Flame","Aqua Affinity","Respiration","Depth Strider","Frost Walker","Soul Speed","Swift Sneak","Loyalty","Channeling","Impaling","Riptide","Multishot","Piercing","Quick Charge","Binding","Vanishing","Sweeping Edge"];
+const MODES=["survival","creative","adventure","spectator"];
 function bankSize(i){
   if(i===0) return MOBS.length*BIOMES.length*ACTS.length;
   if(i===1) return MOBS.length*EFF.length*BIOMES.length;
@@ -89,21 +91,11 @@ function bankSize(i){
   if(i===5) return MOBS.length*ITEMS.length*EFF.length*BIOMES.length;
   if(i===6) return MOBS.length*ITEMS.length*USES.length*BIOMES.length;
   if(i===7) return LOOK.length*MOBS.length*EFF.length*BIOMES.length;
+  if(i===8) return MOBS.length*ITEMS.length*ENCH.length*BIOMES.length*ACTS.length;
+  if(i===9) return WOODS.length*WPART.length*COLS.length*ITEMS.length*BIOMES.length*MODES.length;
   return 0;
 }
-function totalFacts(){let t=6;for(let i=0;i<8;i++) t+=bankSize(i);return t;}
-function factFromBank(bank, idx){
-  function take(arr){const i=idx%arr.length; idx=Math.floor(idx/arr.length); return arr[i];}
-  if(bank===0){const a=take(ACTS),b=take(BIOMES),m=take(MOBS);return "A "+m+" "+a+" when the world includes "+b+".";}
-  if(bank===1){const b=take(BIOMES),e=take(EFF),m=take(MOBS);return "Status "+e+" can apply in "+b+" while a "+m+" is loaded.";}
-  if(bank===2){const b=take(BIOMES),u=take(USES),it=take(ITEMS);return it+" "+u+" in "+b+" worlds.";}
-  if(bank===3){const b=take(BIOMES),c=take(COLS),p=take(WPART),w=take(WOODS);return w+" "+p+" can be used near "+c+" builds in "+b+".";}
-  if(bank===4){const b=take(BIOMES),it=take(ITEMS),m=take(MOBS),L=take(LOOK);return L+" "+m+" and "+it+" around "+b+" terrain.";}
-  if(bank===5){const b=take(BIOMES),e=take(EFF),it=take(ITEMS),m=take(MOBS);return "A "+m+" and "+it+" can both exist under "+e+" in "+b+".";}
-  if(bank===6){const b=take(BIOMES),u=take(USES),it=take(ITEMS),m=take(MOBS);return "A "+m+" run can treat "+it+" as something that "+u+" in "+b+".";}
-  if(bank===7){const b=take(BIOMES),e=take(EFF),m=take(MOBS),L=take(LOOK);return L+" "+m+" when "+e+" is active near "+b+".";}
-  return "";
-}
+function totalFacts(){let t=6;for(let i=0;i<10;i++) t+=bankSize(i);return t;}
 function talk(raw){
   const q=String(raw).toLowerCase();
   if(/^(hi|hey|hello|yo|sup)$/.test(q.trim())) return "Hey. Chat or open Crafting.";
@@ -117,6 +109,8 @@ function talk(raw){
   const bio=BIOMES.find(b=>q.includes(b));
   const it=ITEMS.find(i=>q.includes(i));
   const ef=EFF.find(e=>q.includes(e.toLowerCase()));
+  const en=ENCH.find(e=>q.includes(e.toLowerCase()));
+  if(en&&it) return en+" can appear on gear while "+it+" is in the world.";
   if(mob&&bio) return "A "+mob+" can exist in a world that also generates "+bio+".";
   if(mob&&ef) return "A "+mob+" can be affected by "+ef+" if that effect is applied.";
   if(it&&bio) return it+" can be stored and used in "+bio+" worlds.";
@@ -124,7 +118,8 @@ function talk(raw){
   if(mob) return "A "+mob+" is a Minecraft mob and is in the fact bank.";
   if(it) return it+" is a crafting or survival item in the fact bank.";
   if(bio) return bio+" is a Minecraft biome in the fact bank.";
-  return factFromBank(0, q.length % bankSize(0));
+  if(en) return en+" is an enchantment in the fact bank.";
+  return "Ask a Minecraft or Donut question, or open Crafting.";
 }
 const TOTAL=totalFacts();
 const log=document.getElementById("log");
